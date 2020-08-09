@@ -1,0 +1,102 @@
+###############################################################################
+#   @package        :   Arlo Cameras
+#   @description    :   Control Arlo cameras and alarm
+#   @url            :   
+###############################################################################
+
+#
+# Dedicated arlo account (secrets.yml)
+#
+aarlo:
+  username: !secret arlo_username
+  password: !secret arlo_password
+
+#
+# Alarm (gestion)
+# doit correspondre aux modes de l'app arlo. Les modes par défaut ne semblent pas fonctionner (espace + accents)
+# Lorsque l'on active depuis l'app mobile, on voit les mode dans le logbook !
+#
+alarm_control_panel:
+  - platform: aarlo
+    #home_mode_name: disarmed
+    #away_mode_name: armed_away
+    #night_mode_name: armed_away
+
+#
+# Camera 
+#
+camera:
+  - platform: aarlo
+
+#
+# Light entitie
+#
+light:
+  - platform: aarlo
+
+#
+# Switchs
+#
+switch:
+  - platform: aarlo
+    siren: True
+    all_sirens: True
+    snapshot: True
+    siren_volume: 1
+    siren_duration: 10
+
+#
+# Media player
+#
+media_player:
+  - platform: aarlo
+
+#
+# Sensors
+# 
+sensor:
+  - platform: aarlo
+    monitored_conditions:
+    #- total_cameras
+    - last_capture
+    - recent_activity
+    - captured_today
+    - battery_level
+    - signal_strength
+    - temperature
+    - humidity
+    - air_quality
+
+#
+# Binary sensors
+#
+binary_sensor:
+  - platform: aarlo
+    monitored_conditions:
+    - motion
+    - sound
+    - ding
+    - cry
+    #- connectivity
+    
+###############################################################################
+#                               Automations
+###############################################################################
+
+automation:
+  #
+  # snapshot every 30 min
+  #
+  id: snapshot_aarlo
+  alias: Arlo - Snapshot toutes les 30 minutes
+  trigger:
+    platform: time_pattern
+    hours: '/2'
+  condition:
+  - condition: time
+    after: '07:30:00'
+    before: '23:00:00'
+  action:
+  - service: aarlo.camera_request_snapshot
+    entity_id: camera.aarlo_arlobaby
+    

@@ -1,0 +1,46 @@
+###################################################
+#     Home Assistant Main Configuration File      #
+###################################################
+homeassistant:
+  #customize: !include customize.yaml
+
+  # https://home-assistant.io/docs/configuration/packages/  
+  packages: !include_dir_named packages
+
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include_dir_merge_named scripts
+scene: !include scenes.yaml
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+#logger:
+#  default: warn
+#  logs:
+#    custom_components.renaultze.sensor: debug
+
+#
+# Necessaire au bon fonctionnement depuis l'exterieur
+# Avec l'addon DuckDNS (compte github) : configuration de base
+# ici on force HA à utiliser le SSL, on active le blocage ip si trop de tentatives
+# https://www.home-assistant.io/integrations/http
+# Ne pas activer SSL ICI, on utilise NGINX
+# explication pourquoi NGINX est requis : https://help.konnected.io/support/solutions/articles/32000023964-set-up-hass-io-with-secure-remote-access-using-duckdns-and-nginx-proxy
+# pour avoir une url HTTP interne et HTTPS externe
+# Autre solution : 
+# - ne pas utilise NGINX faire la config DuckDNS (+config SSL ici)
+# - configurer le DNS (livebox) pour que le nom de domaine corresponde à l'ip local d'hassio ainsi 'l'url sur le wifi renvoie en local 
+#   en https et sans erreur "SSL"
+#
+http:
+    ip_ban_enabled: true
+    login_attempts_threshold: 5

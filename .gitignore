@@ -1,0 +1,22 @@
+# Generic ignores
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.pyc
+__pycache__
+
+# Directory (contents) ignores
+.aarlo
+.cloud
+.storage
+deps
+
+# Specific file ignores
+ip_bans.yaml
+secrets.yaml
+known_devices.yaml
+harmony_*.conf
+
+# Specific keeps
+!.gitkeep

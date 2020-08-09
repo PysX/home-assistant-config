@@ -1,0 +1,106 @@
+###############################################################################
+#   @package        :   Harmony TV Activity Control
+#   @description    :   Control Harmony TV Activities
+#   @url            :   
+###############################################################################
+
+#
+# Activités disponibles (Select)
+#
+input_select:
+  harmony_activity:
+    name: Harmony Control
+    options:
+      - Sélectionner
+      - Regarder TV
+      - Regarder Apple TV
+      - AppleTV
+      - Power Off
+    initial: Sélectionner
+    icon: mdi:remote
+
+#
+# Reflete l'activité selectionnée
+# mis à jour par une automation 
+#
+sensor:
+  - platform: template
+    sensors:
+      harmony_activity:
+        entity_id:
+          - sensor.harmony_activity
+        friendly_name: 'Activité'
+        value_template: '{{ states.remote.harmony_hub.attributes.current_activity }}'
+        icon_template: >-
+          {% if is_state("sensor.harmony_activity", "Regarder TV") %}
+            mdi:television-box
+          {% elif is_state("sensor.harmony_activity", "Regarder Apple TV") %}
+            mdi:apple
+          {% elif is_state("sensor.harmony_activity", "AppleTV") %}
+            mdi:apple-airplay
+          {% else %}
+            mdi:television-off
+          {% endif %}
+          
+###############################################################################
+#                               Automations
+###############################################################################
+#
+# Demarre une activité au changement du select
+# Code Activité disponible dans le fichier harmonyxx.conf
+#
+automation:
+  - alias: Harmony - Démarrer activité
+    trigger:
+    - platform: state
+      entity_id: input_select.harmony_activity
+      from: 'Sélectionner'
+    action:
+    - service: remote.turn_on
+      entity_id: remote.harmony_hub
+      data_template:
+        activity: >
+          {% if is_state("input_select.harmony_activity", "Regarder TV") %}
+            44824961
+          {% elif is_state("input_select.harmony_activity", "Regarder Apple TV") %}
+            44825253
+          {% elif is_state("input_select.harmony_activity", "AppleTV") %}
+            44824542
+          {% else %}
+          {% endif %}
+    - service: input_select.select_option
+      entity_id: input_select.harmony_activity
+      data_template:
+        option: "Sélectionner"
+    - service: homeassistant.update_entity
+      entity_id: sensor.harmony_activity
+
+#
+# Arrete une activité (remote turn off) / Activité PowerOff
+#
+  - alias: Harmony - Stopper activité
+    trigger:
+    - platform: state
+      entity_id: input_select.harmony_activity
+      to: 'Power Off'
+    action:
+    - service: remote.turn_off
+      entity_id: remote.harmony_hub
+    - service: input_select.select_option
+      entity_id: input_select.harmony_activity
+      data_template:
+        option: "Sélectionner"  
+    - service: homeassistant.update_entity
+      entity_id: sensor.harmony_activity
+
+  #
+  # Mets à jour le sensors de statut quand la remote est mise à jour (utilisation télécommande)
+  #
+  - alias: Harmony - Update sensor
+    trigger:
+      platform: state
+      entity_id:
+        - remote.harmony_hub
+    action:
+    - service: homeassistant.update_entity
+      entity_id: sensor.harmony_activity

@@ -1,0 +1,14 @@
+###############################################################################
+#   @package        :   Logbook
+#   @description    :   Controle des éléments dans le journal
+#   @url            :   https://www.home-assistant.io/integrations/logbook/
+###############################################################################
+
+#
+# Gestion des éléments journalisés
+#
+logbook:
+  exclude:
+    entities:
+      - sensor.date
+      - sensor.time

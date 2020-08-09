@@ -1,0 +1,228 @@
+###############################################################################
+#   @package        :   Renault ZE
+#   @description    :   Control de la Zoe
+#   @url            :   https://github.com/epenet/hassRenaultZE
+###############################################################################
+ 
+homeassistant:
+  customize:
+    sensor.zoe:
+      device_class: battery
+
+sensor: 
+  - platform: renaultze
+    name: Zoe
+    username: !secret my_renault_login
+    password: !secret my_renault_password
+    vin: !secret my_renault_vin
+    android_lng: fr_FR
+    k_account_id: ""
+  - platform: template
+    sensors:
+      zoe_remaining_range:
+        friendly_name: "Autonomie"
+        value_template: "{{ state_attr('sensor.zoe' , 'remaining_range') }}"
+        unit_of_measurement: "km"
+        icon_template: mdi:road-variant
+  - platform: template
+    sensors:
+      zoe_mileage:
+        friendly_name: "Kilométrage"
+        value_template: "{{ state_attr('sensor.zoe' , 'mileage') }}"
+        unit_of_measurement: "km"
+        icon_template: mdi:counter
+  - platform: template
+    sensors:
+      zoe_battery_temperature:
+        value_template: "{{ state_attr('sensor.zoe' , 'battery_temperature') }}"
+        friendly_name: "Température batterie"
+        unit_of_measurement: "°C"
+  
+    # Calculation kilométrage cible théorique for the Zoé
+    # par rapport au contrat de leasing  (22500 km sur 3 ans (36 mois))
+    #
+  - platform: template
+    sensors:
+      zoe_mileage_target:
+        value_template: >-
+          {{ (((as_timestamp(strptime(states('sensor.date'), '%Y-%m-%d')) - as_timestamp('2020-01-16 0:0:00+02:00'))
+          / 86400) * 22500 / (365 * 3)) | round}}
+        friendly_name: "kilométrage cible"
+        unit_of_measurement: "km"
+        icon_template: mdi:bullseye-arrow
+  #
+  # Temps restant en minute -> conversion timestamp
+  #
+  - platform: template
+    sensors:
+      zoe_charging_remaining_time:
+        friendly_name: "Temps restant"
+        value_template: >-
+          {% if states('sensor.zoe') == 'unknown' -%}
+          unknown
+          {%- elif is_state_attr('sensor.zoe', 'charging', true) -%}
+          {{ state_attr('sensor.zoe' , 'charging_remaining_time') | int | multiply(60) | timestamp_custom('%R', false)  }}
+          {%- else -%}
+          {{ "0" | int | multiply(60) | timestamp_custom('%R', false)  }}
+          {%- endif %}
+        unit_of_measurement: "heures"
+        icon_template: mdi:timelapse
+
+binary_sensor:
+  #
+  # This binary sensor, track the charging state of the Zoé
+  #
+  - platform: template
+    sensors:
+      zoe_charging:
+        friendly_name: "Charge"
+        value_template: >-
+          {%- if is_state_attr('sensor.zoe', 'charging', true) and is_state_attr('sensor.zoe', 'charge_status', 'Charging')
+          -%}
+          true
+          {%- else -%}
+          false
+          {%- endif %}
+        icon_template: >-
+          {%- if is_state_attr('sensor.zoe', 'charging', true)
+          -%}
+          mdi:battery-charging-30
+          {%- else -%}
+          mdi:battery-30
+          {%- endif %}
+  #
+  # This binary sensor, track the plugged state of the Zoé
+  #
+  - platform: template
+    sensors:
+      zoe_plugged:
+        friendly_name: "Branchée"
+        device_class: plug
+        value_template: >-
+          {%- if is_state_attr('sensor.zoe', 'plugged', true)
+          -%}
+          true
+          {%- else -%}
+          false
+          {%- endif %}
+
+#
+# Switches
+#
+switch:
+  - platform: template
+    switches:
+      #
+      # Start AC now for five minutes (see script)
+      # 
+      zoe_ac_start:
+        friendly_name: "A/C"
+        icon_template: mdi:fan
+        value_template: "{{ is_state('script.zoe_ac_start', 'on') }}"
+        turn_on:
+          service: homeassistant.turn_on
+          data:
+            entity_id: script.zoe_ac_start
+        turn_off:
+          service: homeassistant.turn_off
+          data:
+            entity_id: script.zoe_ac_start
+      #
+      # Start Charge now (button is locked five minutes) (see script)
+      # 
+      zoe_charge_start:
+        friendly_name: "Démarrer"
+        icon_template: mdi:flash-circle
+        value_template: "{{ is_state('script.zoe_charge_start', 'on') }}"
+        turn_on:
+          service: homeassistant.turn_on
+          data:
+            entity_id: script.zoe_charge_start
+        turn_off:
+          service: homeassistant.turn_off
+          data:
+            entity_id: script.zoe_charge_start
+
+###############################################################################
+#                               Automations
+###############################################################################
+
+automation:
+  #
+  # Update location on sensor update
+  #
+  - alias: Zoe - Update location 
+    trigger:
+      platform: state
+      entity_id:
+        - sensor.zoe
+    action:
+      - service: device_tracker.see
+        data_template:
+          dev_id: zoe
+          host_name: Zoe
+          gps:
+            - "{{ state_attr('sensor.zoe','location_latitude')|round(8)|float }}"
+            - "{{ state_attr('sensor.zoe','location_longitude')|round(8)|float }}"
+
+  # 
+  # Send notification when charge start
+  #
+  - alias: Zoe - Notification demarrage charge
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.zoe_charging
+        to: 'on'
+    action:
+      - service: notify.mobile_app_iphone_de_cedric
+        data_template:
+          title: "Zoe début de charge"
+          message: "La charge a commencé à {{ states.sensor.zoe.state_with_unit }} le {{ as_timestamp(state_attr('sensor.zoe', 'last_update')) | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}."
+ #
+ # Send Notification when charge stop
+ #
+  - alias: Zoe - Notification arrêt charge
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.zoe_charging
+        to: 'off'
+    action:
+      - service: notify.mobile_app_iphone_de_cedric
+        data_template:
+          title: "Zoe fin de charge"
+          message: "La charge est terminée à {{ states.sensor.zoe.state_with_unit }} le {{ as_timestamp(state_attr('sensor.zoe', 'last_update')) | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}."
+
+###############################################################################
+#                               Scripts
+###############################################################################
+script: 
+  #
+  # Demarrage AC - keep on five minutes
+  #
+  zoe_ac_start:
+    alias: "Zoe : AC start"
+    icon: "mdi:fan"
+    sequence:  
+    - service: renaultze.ac_start
+      data:
+        entity_id: sensor.zoe
+    - service: persistent_notification.create
+      data:
+        message: Climatisation Zoe lancée  
+    - delay: 
+        seconds: 300
+  #
+  # Demarrage Charge - keep on five minutes (when new status coming, and charging =true, the buttong disapear from lovelace (conditional card))
+  #
+  zoe_charge_start:
+    alias: "Zoe : Charge start"
+    icon: "mdi:flash-circle"
+    sequence:
+    - service: renaultze.charge_start
+      data:
+        entity_id: sensor.zoe
+    - service: persistent_notification.create
+      data:
+        message: Charge Zoe lancée
+    - delay: 
+        seconds: 300

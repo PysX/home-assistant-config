@@ -1,0 +1,71 @@
+###############################################################################
+#   @package        :   History
+#   @description    :   Controle des éléments historiés
+#   @url            :   https://www.home-assistant.io/integrations/history/
+###############################################################################
+
+#
+# Gestion des éléments historisés
+#
+history:
+  exclude:
+    domains:
+      - automation
+      - updater
+    entities:
+      - sensor.date
+      - sensor.time
+      - sensor.lastboot
+      #- sensor.aarlo_air_quality_arlobaby
+      - sensor.aarlo_arlo_cameras
+      #- sensor.aarlo_battery_level_arlobaby
+      #- sensor.aarlo_captured_today_arlobaby
+      - sensor.aarlo_humidity_arlobaby
+      #- sensor.aarlo_last_arlobaby
+      - sensor.aarlo_recent_activity_arlobaby
+      - sensor.aarlo_signal_strength_arlobaby
+      #- sensor.aarlo_temperature_arlobaby
+      - sensor.blackface_drive_1_status
+      - sensor.blackface_drive_1_temperature
+      - sensor.blackface_drive_2_status
+      - sensor.blackface_drive_2_temperature
+      #- sensor.blackface_volume_1_average_disk_temp
+      #- sensor.blackface_volume_1_status
+      #- sensor.blackface_volume_1_used_space
+      #- sensor.blackface_volume_1_volume_used
+      #- sensor.chambre_interrupteur_battery_level
+      - sensor.cpu_temperature
+      - sensor.date
+      - sensor.disk_use_percent
+      - sensor.harmony_activity
+      - sensor.ipad_de_cedric_battery_level
+      - sensor.ipad_de_cedric_battery_state
+      - sensor.ipad_de_cedric_bssid
+      - sensor.ipad_de_cedric_connection_type
+      #- sensor.ipad_de_cedric_geocoded_location
+      #- sensor.ipad_de_cedric_last_update_trigger
+      - sensor.ipad_de_cedric_ssid
+      - sensor.iphone_de_cedric_battery_level
+      - sensor.iphone_de_cedric_battery_state
+      - sensor.iphone_de_cedric_bssid
+      - sensor.iphone_de_cedric_connection_type
+      #- sensor.iphone_de_cedric_geocoded_location
+      #- sensor.iphone_de_cedric_last_update_trigger
+      - sensor.iphone_de_cedric_sim_1
+      - sensor.iphone_de_cedric_ssid
+      - sensor.last_boot
+      - sensor.load_15m
+      - sensor.load_1m
+      - sensor.load_5m
+      #- sensor.memory_use_percent
+      - sensor.network_throughput_in_eth0
+      - sensor.network_throughput_out_eth0
+      #- sensor.processor_use
+      - sensor.time
+      - sensor.zoe
+      - sensor.zoe_battery_temperature
+      - sensor.zoe_charging
+      - sensor.zoe_mileage
+      - sensor.zoe_mileage_target
+      - sensor.zoe_plugged
+      - sensor.zoe_remaining_range
