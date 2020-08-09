@@ -20,3 +20,4 @@ harmony_*.conf
 
 # Specific keeps
 !.gitkeep
+!.stubs/secrets.yaml
