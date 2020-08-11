@@ -3,7 +3,7 @@
 #   @description    :   Informations météo
 #   @url            :   https://www.home-assistant.io/integrations/weather/
 ###############################################################################
- 
+
 #
 # Add a sensor to have outside informations
 #
@@ -12,5 +12,5 @@ sensor:
     sensors:
       outside_temperature:
         friendly_name: "Température extérieure"
-        unit_of_measurement: '°C'
+        unit_of_measurement: "°C"
         value_template: "{{ state_attr('weather.maison', 'temperature') }}"

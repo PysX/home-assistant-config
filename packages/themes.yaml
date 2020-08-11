@@ -1,18 +1,17 @@
 ###############################################################################
 #   @package        :   Themes
 #   @description    :   Gestion des thèmes
-#   @url            :   
+#   @url            :
 ###############################################################################
- 
 
 ###############################################################################
 #                               Automations
 ###############################################################################
 automation:
-#
-# Change de theme home assistant selon que le soleil est au dessus ou en dessous de l'horizon
-#
-  - alias: 'Theme - Change jour/nuit (light/dark)'
+  #
+  # Change de theme home assistant selon que le soleil est au dessus ou en dessous de l'horizon
+  #
+  - alias: "Theme - Change jour/nuit (light/dark)"
     trigger:
       - platform: homeassistant
         event: start

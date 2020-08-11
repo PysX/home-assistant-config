@@ -3,13 +3,13 @@
 #   @description    :   Control de la Zoe
 #   @url            :   https://github.com/epenet/hassRenaultZE
 ###############################################################################
- 
+
 homeassistant:
   customize:
     sensor.zoe:
       device_class: battery
 
-sensor: 
+sensor:
   - platform: renaultze
     name: Zoe
     username: !secret my_renault_login
@@ -37,10 +37,10 @@ sensor:
         value_template: "{{ state_attr('sensor.zoe' , 'battery_temperature') }}"
         friendly_name: "Température batterie"
         unit_of_measurement: "°C"
-  
-    # Calculation kilométrage cible théorique for the Zoé
-    # par rapport au contrat de leasing  (22500 km sur 3 ans (36 mois))
-    #
+
+  # Calculation kilométrage cible théorique for the Zoé
+  # par rapport au contrat de leasing  (22500 km sur 3 ans (36 mois))
+  #
   - platform: template
     sensors:
       zoe_mileage_target:
@@ -114,7 +114,7 @@ switch:
     switches:
       #
       # Start AC now for five minutes (see script)
-      # 
+      #
       zoe_ac_start:
         friendly_name: "A/C"
         icon_template: mdi:fan
@@ -129,7 +129,7 @@ switch:
             entity_id: script.zoe_ac_start
       #
       # Start Charge now (button is locked five minutes) (see script)
-      # 
+      #
       zoe_charge_start:
         friendly_name: "Démarrer"
         icon_template: mdi:flash-circle
@@ -151,7 +151,7 @@ automation:
   #
   # Update location on sensor update
   #
-  - alias: Zoe - Update location 
+  - alias: Zoe - Update location
     trigger:
       platform: state
       entity_id:
@@ -165,27 +165,27 @@ automation:
             - "{{ state_attr('sensor.zoe','location_latitude')|round(8)|float }}"
             - "{{ state_attr('sensor.zoe','location_longitude')|round(8)|float }}"
 
-  # 
+  #
   # Send notification when charge start
   #
   - alias: Zoe - Notification demarrage charge
     trigger:
       - platform: state
         entity_id: binary_sensor.zoe_charging
-        to: 'on'
+        to: "on"
     action:
       - service: notify.mobile_app_iphone_de_cedric
         data_template:
           title: "Zoe début de charge"
           message: "La charge a commencé à {{ states.sensor.zoe.state_with_unit }} le {{ as_timestamp(state_attr('sensor.zoe', 'last_update')) | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}."
- #
- # Send Notification when charge stop
- #
+  #
+  # Send Notification when charge stop
+  #
   - alias: Zoe - Notification arrêt charge
     trigger:
       - platform: state
         entity_id: binary_sensor.zoe_charging
-        to: 'off'
+        to: "off"
     action:
       - service: notify.mobile_app_iphone_de_cedric
         data_template:
@@ -195,22 +195,22 @@ automation:
 ###############################################################################
 #                               Scripts
 ###############################################################################
-script: 
+script:
   #
   # Demarrage AC - keep on five minutes
   #
   zoe_ac_start:
     alias: "Zoe : AC start"
     icon: "mdi:fan"
-    sequence:  
-    - service: renaultze.ac_start
-      data:
-        entity_id: sensor.zoe
-    - service: persistent_notification.create
-      data:
-        message: Climatisation Zoe lancée  
-    - delay: 
-        seconds: 300
+    sequence:
+      - service: renaultze.ac_start
+        data:
+          entity_id: sensor.zoe
+      - service: persistent_notification.create
+        data:
+          message: Climatisation Zoe lancée
+      - delay:
+          seconds: 300
   #
   # Demarrage Charge - keep on five minutes (when new status coming, and charging =true, the buttong disapear from lovelace (conditional card))
   #
@@ -218,11 +218,11 @@ script:
     alias: "Zoe : Charge start"
     icon: "mdi:flash-circle"
     sequence:
-    - service: renaultze.charge_start
-      data:
-        entity_id: sensor.zoe
-    - service: persistent_notification.create
-      data:
-        message: Charge Zoe lancée
-    - delay: 
-        seconds: 300
+      - service: renaultze.charge_start
+        data:
+          entity_id: sensor.zoe
+      - service: persistent_notification.create
+        data:
+          message: Charge Zoe lancée
+      - delay:
+          seconds: 300

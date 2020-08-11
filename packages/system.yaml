@@ -3,25 +3,25 @@
 #   @description    :   Supervision du système
 #   @url            :   https://www.home-assistant.io/integrations/system/
 ###############################################################################
- 
+
 sensor:
   - platform: systemmonitor
     resources:
-    - type: disk_use_percent
-      arg: /
-    - type: memory_use_percent
-    - type: load_1m
-    - type: load_5m
-    - type: load_15m
-    - type: processor_use
-    - type: last_boot
-    - type: throughput_network_in
-      arg: eth0
-    - type: throughput_network_out
-      arg: eth0
-# Pi Temperature
+      - type: disk_use_percent
+        arg: /
+      - type: memory_use_percent
+      - type: load_1m
+      - type: load_5m
+      - type: load_15m
+      - type: processor_use
+      - type: last_boot
+      - type: throughput_network_in
+        arg: eth0
+      - type: throughput_network_out
+        arg: eth0
+  # Pi Temperature
   - platform: command_line
     name: CPU Temperature
     command: "cat /sys/class/thermal/thermal_zone0/temp"
     unit_of_measurement: "°C"
-    value_template: '{{ value | multiply(0.001) | round(1) }}'
+    value_template: "{{ value | multiply(0.001) | round(1) }}"

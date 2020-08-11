@@ -3,12 +3,12 @@
 #   @description    :   Utilitaires sur les dates et le temps
 #   @url            :   https://www.home-assistant.io/integrations/time_date/
 ###############################################################################
- 
+
 #
 # Add a sensor to have current date
 #
 sensor:
   - platform: time_date
     display_options:
-      - 'date'
-      - 'time'
+      - "date"
+      - "time"
