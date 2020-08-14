@@ -24,9 +24,10 @@ automation:
     action:
       - service_template: frontend.set_theme
         data_template:
-          name: >
+          name: default
+          mode: >
             {% if states.sun.sun.state == "above_horizon" %}
-              default
+              light
             {% else %}
-              midnight
+              dark
             {% endif %}

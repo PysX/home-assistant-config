@@ -4,6 +4,13 @@
 #   @url            :   https://www.home-assistant.io/integrations/system/
 ###############################################################################
 
+homeassistant:
+  customize:
+    sensor.ipv4_publique:
+      icon: mdi:ip-network
+    sensor.ipv6_publique:
+      icon: mdi:ip-network
+
 sensor:
   - platform: systemmonitor
     resources:
@@ -25,3 +32,12 @@ sensor:
     command: "cat /sys/class/thermal/thermal_zone0/temp"
     unit_of_measurement: "°C"
     value_template: "{{ value | multiply(0.001) | round(1) }}"
+  # Public IP v4
+  - platform: dnsip
+    name: IPv4 publique
+    hostname: !secret hostname
+  # Public IP v6
+  - platform: dnsip
+    name: IPv6 publique
+    ipv6: true
+    hostname: !secret hostname
