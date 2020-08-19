@@ -49,7 +49,7 @@ CONF_VIN = 'vin'
 CONF_ANDROID_LNG = 'android_lng'
 CONF_K_ACCOUNTID = 'k_account_id'
 
-SCAN_INTERVAL = timedelta(seconds=60)
+SCAN_INTERVAL = timedelta(seconds=300)
 
 SERVICE_AC_START = "ac_start"
 SERVICE_AC_CANCEL = "ac_cancel"
@@ -210,11 +210,11 @@ class RenaultZESensor(Entity):
             self._attrs[ATTR_BATTERY_TEMPERATURE] = jsonresult['batteryTemperature']
         if 'batteryAutonomy' in jsonresult:
             self._attrs[ATTR_REMAINING_RANGE] = jsonresult['batteryAutonomy']
-        if 'chargingInstantaneousPower' in jsonresult:
+        if 'chargingInstantaneousPower' in jsonresult and self._attrs[ATTR_CHARGING]:
             self._attrs[ATTR_CHARGING_POWER] = jsonresult['chargingInstantaneousPower'] / 1000
         else:
             self._attrs[ATTR_CHARGING_POWER] = 0
-        if 'chargingRemainingTime' in jsonresult:
+        if 'chargingRemainingTime' in jsonresult and self._attrs[ATTR_CHARGING]:
             self._attrs[ATTR_CHARGING_REMAINING_TIME] = jsonresult['chargingRemainingTime']
         else:
             self._attrs[ATTR_CHARGING_REMAINING_TIME] = None
