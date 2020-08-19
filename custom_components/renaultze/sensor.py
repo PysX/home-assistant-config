@@ -41,7 +41,6 @@ ATTR_CHARGE_MODE = 'charge_mode'
 ATTR_WHEN = 'when'
 ATTR_TEMPERATURE = 'temperature'
 ATTR_SCHEDULES = 'schedules'
-#CEDRIC
 ATTR_LOCATION_LAT = 'location_latitude'
 ATTR_LOCATION_LON = 'location_longitude'
 ATTR_LOCATION_LAST_UPDATE = 'location_last_update'
@@ -50,7 +49,7 @@ CONF_VIN = 'vin'
 CONF_ANDROID_LNG = 'android_lng'
 CONF_K_ACCOUNTID = 'k_account_id'
 
-SCAN_INTERVAL = timedelta(seconds=300)
+SCAN_INTERVAL = timedelta(seconds=60)
 
 SERVICE_AC_START = "ac_start"
 SERVICE_AC_CANCEL = "ac_cancel"
@@ -192,10 +191,6 @@ class RenaultZESensor(Entity):
         if 'chargingStatus' in jsonresult:
             self._attrs[ATTR_CHARGING] = jsonresult['chargingStatus'] > 0
             
-            # CEDRIC : Charging status is an enum, check value
-            # It may be possible to modify ATTR_CHARGING
-            _LOGGER.debug("Charging status result: {0}".format(jsonresult))
-            
             try:
                 charge_state = ChargeState(jsonresult['chargingStatus'])
             except ValueError:
@@ -215,11 +210,11 @@ class RenaultZESensor(Entity):
             self._attrs[ATTR_BATTERY_TEMPERATURE] = jsonresult['batteryTemperature']
         if 'batteryAutonomy' in jsonresult:
             self._attrs[ATTR_REMAINING_RANGE] = jsonresult['batteryAutonomy']
-        if 'chargingInstantaneousPower' in jsonresult and self._attrs[ATTR_CHARGING]:
+        if 'chargingInstantaneousPower' in jsonresult:
             self._attrs[ATTR_CHARGING_POWER] = jsonresult['chargingInstantaneousPower'] / 1000
         else:
             self._attrs[ATTR_CHARGING_POWER] = 0
-        if 'chargingRemainingTime' in jsonresult and self._attrs[ATTR_CHARGING]:
+        if 'chargingRemainingTime' in jsonresult:
             self._attrs[ATTR_CHARGING_REMAINING_TIME] = jsonresult['chargingRemainingTime']
         else:
             self._attrs[ATTR_CHARGING_REMAINING_TIME] = None
@@ -238,10 +233,8 @@ class RenaultZESensor(Entity):
 
     def process_chargemode_response(self, jsonresult):
         """Update new state data for the sensor."""
-        # CEDRIC (suppression .name)
         self._attrs[ATTR_CHARGE_MODE] = jsonresult.name if hasattr(jsonresult, 'name') else jsonresult
-        
-    #CEDRIC
+    
     def process_location_response(self, jsonresult):
         """Update location data for the sensor."""
         if 'gpsLatitude' in jsonresult:
@@ -282,14 +275,13 @@ class RenaultZESensor(Entity):
             self.process_chargemode_response(jsonresult)
         except Exception as e:
             _LOGGER.warning("Charge mode update failed: {0}".format(traceback.format_exc()))
-        # CEDRIC
+
         try:
             jsonresult =  self._vehicle.location()
             _LOGGER.debug("Location update result: {0}".format(jsonresult))
             self.process_location_response(jsonresult)
         except Exception as e:
             _LOGGER.warning("Location update failed: {0}".format(traceback.format_exc()))
-
 
     def ac_start(self, when=None, temperature=21):
         try:
