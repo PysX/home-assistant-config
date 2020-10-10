@@ -6,9 +6,9 @@
 
 homeassistant:
   customize:
-    sensor.zoe:
-      device_class: battery
-
+    device_tracker.zoe_location:
+      entity_picture: /local/zoe.png
+    
 sensor:
   - platform: renaultze
     name: Zoe
@@ -17,26 +17,6 @@ sensor:
     vin: !secret my_renault_vin
     android_lng: fr_FR
     k_account_id: ""
-  - platform: template
-    sensors:
-      zoe_remaining_range:
-        friendly_name: "Autonomie"
-        value_template: "{{ state_attr('sensor.zoe' , 'remaining_range') }}"
-        unit_of_measurement: "km"
-        icon_template: mdi:road-variant
-  - platform: template
-    sensors:
-      zoe_mileage:
-        friendly_name: "Kilométrage"
-        value_template: "{{ state_attr('sensor.zoe' , 'mileage') }}"
-        unit_of_measurement: "km"
-        icon_template: mdi:counter
-  - platform: template
-    sensors:
-      zoe_battery_temperature:
-        value_template: "{{ state_attr('sensor.zoe' , 'battery_temperature') }}"
-        friendly_name: "Température batterie"
-        unit_of_measurement: "°C"
 
   # Calculation kilométrage cible théorique for the Zoé
   # par rapport au contrat de leasing  (22500 km sur 3 ans (36 mois))
@@ -55,56 +35,18 @@ sensor:
   #
   - platform: template
     sensors:
-      zoe_charging_remaining_time:
+      zoe_charging_remaining_time_hour:
         friendly_name: "Temps restant"
         value_template: >-
-          {% if states('sensor.zoe') == 'unknown' -%}
+          {% if states('sensor.zoe_charging_remaining_time') == 'unknown' -%}
           unknown
-          {%- elif is_state_attr('sensor.zoe', 'charging', true) -%}
-          {{ state_attr('sensor.zoe' , 'charging_remaining_time') | int | multiply(60) | timestamp_custom('%R', false)  }}
+          {%- elif is_state("binary_sensor.zoe_charging", "on") -%}
+          {{ states.sensor.zoe_charging_remaining_time.state | int | multiply(60) | timestamp_custom('%R', false)  }}
           {%- else -%}
           {{ "0" | int | multiply(60) | timestamp_custom('%R', false)  }}
           {%- endif %}
         unit_of_measurement: "heures"
         icon_template: mdi:timelapse
-
-binary_sensor:
-  #
-  # This binary sensor, track the charging state of the Zoé
-  #
-  - platform: template
-    sensors:
-      zoe_charging:
-        friendly_name: "Charge"
-        value_template: >-
-          {%- if is_state_attr('sensor.zoe', 'charging', true) and is_state_attr('sensor.zoe', 'charge_status', 'Charging')
-          -%}
-          true
-          {%- else -%}
-          false
-          {%- endif %}
-        icon_template: >-
-          {%- if is_state_attr('sensor.zoe', 'charging', true)
-          -%}
-          mdi:battery-charging-30
-          {%- else -%}
-          mdi:battery-30
-          {%- endif %}
-  #
-  # This binary sensor, track the plugged state of the Zoé
-  #
-  - platform: template
-    sensors:
-      zoe_plugged:
-        friendly_name: "Branchée"
-        device_class: plug
-        value_template: >-
-          {%- if is_state_attr('sensor.zoe', 'plugged', true)
-          -%}
-          true
-          {%- else -%}
-          false
-          {%- endif %}
 
 #
 # Switches
@@ -148,23 +90,6 @@ switch:
 ###############################################################################
 
 automation:
-  #
-  # Update location on sensor update
-  #
-  - alias: Zoe - Update location
-    trigger:
-      platform: state
-      entity_id:
-        - sensor.zoe
-    action:
-      - service: device_tracker.see
-        data_template:
-          dev_id: zoe
-          host_name: Zoe
-          gps:
-            - "{{ state_attr('sensor.zoe','location_latitude')|round(8)|float }}"
-            - "{{ state_attr('sensor.zoe','location_longitude')|round(8)|float }}"
-
   #
   # Send notification when charge start
   #
