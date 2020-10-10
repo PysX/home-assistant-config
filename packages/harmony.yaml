@@ -61,11 +61,11 @@ automation:
         data_template:
           activity: >
             {% if is_state("input_select.harmony_activity", "Regarder TV") %}
-              44824961
+              45956433
             {% elif is_state("input_select.harmony_activity", "Regarder Apple TV") %}
-              44825253
+              45956394
             {% elif is_state("input_select.harmony_activity", "AppleTV") %}
-              44824542
+              45956603
             {% else %}
             {% endif %}
       - service: input_select.select_option
@@ -74,7 +74,6 @@ automation:
           option: "Sélectionner"
       - service: homeassistant.update_entity
         entity_id: sensor.harmony_activity
-
   #
   # Arrete une activité (remote turn off) / Activité PowerOff
   #
