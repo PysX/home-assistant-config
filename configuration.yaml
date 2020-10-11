@@ -25,7 +25,8 @@ frontend:
 # logger:
 #  default: warn
 #  logs:
-#    custom_components.renaultze.sensor: debug
+#    custom_components.renault: debug
+#   custom_components.renaultze.sensor: debug
 
 #
 # Necessaire au bon fonctionnement depuis l'exterieur

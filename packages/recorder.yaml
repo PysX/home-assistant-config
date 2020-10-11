@@ -1,6 +1,7 @@
 ###############################################################################
 #   @package        :   Recorder
-#   @description    :   Controle la BDD et ce qui y est stocké (Pour l'hisotry et logbook (restitution), voir les fichiers de configuration)
+#   @description    :   Controle la BDD et ce qui y est stocké (Pour l'hisotry et logbook (restitution),
+#                       voir les fichiers de configuration)
 #   @url            :   https://www.home-assistant.io/integrations/recorder/
 ###############################################################################
 
@@ -76,7 +77,6 @@ recorder:
       - sensor.network_throughput_in_eth0
       - sensor.network_throughput_out_eth0
       # - sensor.processor_use
-      # - sensor.zoe
       - sensor.zoe_battery_temperature
       # - sensor.zoe_charging
       # - sensor.zoe_mileage

@@ -62,10 +62,5 @@ history:
       - sensor.network_throughput_out_eth0
       # - sensor.processor_use
       - sensor.time
-      - sensor.zoe
       - sensor.zoe_battery_temperature
-      - sensor.zoe_charging
-      - sensor.zoe_mileage
       - sensor.zoe_mileage_target
-      - sensor.zoe_plugged
-      - sensor.zoe_remaining_range
