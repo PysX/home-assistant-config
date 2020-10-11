@@ -97,6 +97,7 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.zoe_charging
+        from: "off"
         to: "on"
     action:
       - service: notify.mobile_app_iphone_de_cedric
@@ -110,6 +111,7 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.zoe_charging
+        from: "on"
         to: "off"
     action:
       - service: notify.mobile_app_iphone_de_cedric
