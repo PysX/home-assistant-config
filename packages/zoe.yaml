@@ -130,9 +130,9 @@ script:
     alias: "Zoe : AC start"
     icon: "mdi:fan"
     sequence:
-      - service: renaultze.ac_start
+      - service: renault.ac_start
         data:
-          entity_id: sensor.zoe
+          vin: !secret my_renault_vin
       - service: persistent_notification.create
         data:
           message: Climatisation Zoe lancée
@@ -145,9 +145,9 @@ script:
     alias: "Zoe : Charge start"
     icon: "mdi:flash-circle"
     sequence:
-      - service: renaultze.charge_start
+      - service: renault.charge_start
         data:
-          entity_id: sensor.zoe
+          vin: !secret my_renault_vin
       - service: persistent_notification.create
         data:
           message: Charge Zoe lancée
