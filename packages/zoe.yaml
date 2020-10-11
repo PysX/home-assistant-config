@@ -10,14 +10,6 @@ homeassistant:
       entity_picture: /local/zoe.png
     
 sensor:
-  - platform: renaultze
-    name: Zoe
-    username: !secret my_renault_login
-    password: !secret my_renault_password
-    vin: !secret my_renault_vin
-    android_lng: fr_FR
-    k_account_id: ""
-
   # Calculation kilométrage cible théorique for the Zoé
   # par rapport au contrat de leasing  (22500 km sur 3 ans (36 mois))
   #
