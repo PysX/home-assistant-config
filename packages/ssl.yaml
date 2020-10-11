@@ -1,0 +1,29 @@
+###############################################################################
+#   @package        :   SSL
+#   @description    :   Supervise SSL et reboot reverse nginx
+#   @url            :   https://github.com/home-assistant/hassio-addons/issues/1445
+###############################################################################
+
+###############################################################################
+#                               Automations
+###############################################################################
+
+automation:
+  # Il faut redemarrer Nginx pour appliqer le nouveau certificat
+  - alias: "SSL - Timestamp certificat expire"
+    trigger:
+      - platform: time
+        at: '03:00:00'
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.cert_expiry
+        below: 10
+    action:
+      - service: hassio.addon_restart
+        data:
+         addon: core_nginx_proxy
+      # - delay: 00:05:00
+      # - service: homeassistant.restart
+      - service: persistent_notification.create
+        data:
+          message: 'NGinx proxy redemarré pour activer le nouveau certificat.'
