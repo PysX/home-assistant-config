@@ -1,6 +1,6 @@
 ###############################################################################
 #   @package        :   Recorder
-#   @description    :   Controle la BDD et ce qui y est stocké (Pour l'hisotry et logbook (restitution), 
+#   @description    :   Controle la BDD et ce qui y est stocké (Pour l'hisotry et logbook (restitution),
 #                       voir les fichiers de configuration)
 #   @url            :   https://www.home-assistant.io/integrations/recorder/
 ###############################################################################
