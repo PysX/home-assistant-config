@@ -95,7 +95,7 @@ automation:
       - service: notify.mobile_app_iphone_de_cedric
         data_template:
           title: "Zoe début de charge"
-          message: "La charge a commencé à {{ states.sensor.zoe.state_with_unit }} le {{ as_timestamp(state_attr('sensor.zoe', 'last_update')) | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}."
+          message: "La charge a commencé à {{ states.sensor.zoe_battery_level.state_with_unit }} le {{ as_timestamp(state_attr('sensor.zoe_battery_level', 'last_update')) | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}."
   #
   # Send Notification when charge stop
   #
@@ -109,7 +109,7 @@ automation:
       - service: notify.mobile_app_iphone_de_cedric
         data_template:
           title: "Zoe fin de charge"
-          message: "La charge est terminée à {{ states.sensor.zoe.state_with_unit }} le {{ as_timestamp(state_attr('sensor.zoe', 'last_update')) | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}."
+          message: "La charge est terminée à {{ states.sensor.zoe_battery_level.state_with_unit }} le {{ as_timestamp(state_attr('sensor.zoe_battery_level', 'last_update')) | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}."
 
 ###############################################################################
 #                               Scripts
