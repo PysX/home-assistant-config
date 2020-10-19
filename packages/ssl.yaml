@@ -21,7 +21,7 @@ automation:
     action:
       - service: hassio.addon_restart
         data:
-         addon: core_nginx_proxy
+          addon: core_nginx_proxy
       # - delay: 00:05:00
       # - service: homeassistant.restart
       - service: persistent_notification.create
