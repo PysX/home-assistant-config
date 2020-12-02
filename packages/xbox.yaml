@@ -1,0 +1,12 @@
+###############################################################################
+#   @package        :   Harmony TV Activity Control
+#   @description    :   Control Harmony TV Activities
+#   @url            :
+###############################################################################
+homeassistant:
+  customize:
+    # customize pour homebridge
+    media_player.xboxone:
+      friendly_name: XboxOne
+      #source_list: [Orange,Apple TV,AirPlay]
+      device_class: tv
