@@ -8,10 +8,10 @@ homeassistant:
     # customize pour homebridge
     media_player.salon_tv:
       friendly_name: TV Salon
-      source_list: [Orange,Apple TV,AirPlay]
+      source_list: [Orange, Apple TV, AirPlay]
       device_class: tv
-  
-  
+
+
 #
 # Activités disponibles (Select)
 #
@@ -69,7 +69,7 @@ media_player:
           device: Onkyo
           command: Mute
       select_source:
-        # Selon la sélection dans Homekit, change la source
+        # Selon la sélection dans Homekit: change la source
         service: remote.turn_on
         data_template:
           entity_id: remote.harmony_hub
@@ -101,7 +101,7 @@ automation:
       entity_id: remote.harmony_hub
     condition: []
     action:
-    - service: input_select.select_option
+      service: input_select.select_option
       data_template:
         entity_id: input_select.salon_tv_activity
         option: >-
