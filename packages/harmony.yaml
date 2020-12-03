@@ -11,7 +11,6 @@ homeassistant:
       source_list: [Orange, Apple TV, AirPlay]
       device_class: tv
 
-
 #
 # Activités disponibles (Select)
 #
@@ -114,4 +113,3 @@ automation:
           {% else %}
           Power Off
           {% endif %}
-
