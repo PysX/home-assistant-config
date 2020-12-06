@@ -1,7 +1,7 @@
 ###############################################################################
 #   @package        :   Poubelles
 #   @description    :   Concerne les poubelles, utilise integration garbage
-#   @url            :   
+#   @url            :
 ###############################################################################
 
 ###############################################################################
@@ -10,9 +10,9 @@
 ios:
   push:
     categories:
-      - name: "Alarme poubelles" 
-        identifier: 'alarm_trash' 
-        actions: 
+      - name: "Alarme poubelles"
+        identifier: 'alarm_trash'
+        actions:
           - identifier: 'SILENCE_TRASH_ALARM'
             title: "C'est fait !"
             destructive: false
@@ -72,8 +72,8 @@ automation:
       event_data:
         actionName: SILENCE_TRASH_ALARM
     action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.notify_poubelles
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.notify_poubelles
   #
   # Activate alarm from iOS notification (after being disabled)
   #
@@ -84,8 +84,8 @@ automation:
       attribute: days
       from: 0
     action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.notify_poubelles
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.notify_poubelles
 
 # automation:
 # - alias: Poubelles - Notifications
@@ -140,12 +140,12 @@ automation:
 #       - service: script.speech_processing
 #         data_template:
 #           speech_message: >
-            # {% if is_state("sensor.trash_day", "yes") and is_state("sensor.recycle_day", "yes") %}
-            #   Attention!: Tomorrow is the Trash and Recycle Pickup day.
-            #   Please don't forget to put the trash and recycle bin outside tonight!
-            # {% elif states.sensor.trash_day.state == "yes" %}
-            #   Please don't forget to put the Trash bin outside tonight!
-            # {% elif states.sensor.recycle_day.state == "yes" %}
-            #   Attention!: Tomorrow is the Recycle Pickup day.
-            #   Please don't forget to put the recycle bin outside tonight!
-            # {% endif %}
+#             {% if is_state("sensor.trash_day", "yes") and is_state("sensor.recycle_day", "yes") %}
+#               Attention!: Tomorrow is the Trash and Recycle Pickup day.
+#               Please don't forget to put the trash and recycle bin outside tonight!
+#             {% elif states.sensor.trash_day.state == "yes" %}
+#               Please don't forget to put the Trash bin outside tonight!
+#             {% elif states.sensor.recycle_day.state == "yes" %}
+#               Attention!: Tomorrow is the Recycle Pickup day.
+#               Please don't forget to put the recycle bin outside tonight!
+#             {% endif %}
