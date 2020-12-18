@@ -237,11 +237,11 @@ class MeteofranceWeatherCard extends LitElement {
         ${this.isSelected(this._config.details)
         ? this.renderDetails(stateObj) : ""}
 
-        ${this.isSelected(this._config.one_hour_forecast)
-        ? this.renderOneHourForecast() : ""}
-
         ${this.isSelected(this._config.alert_forecast)
         ? this.renderAlertForecast() : ""}
+
+        ${this.isSelected(this._config.one_hour_forecast)
+        ? this.renderOneHourForecast() : ""}
 
         ${this.isSelected(this._config.forecast)
         ? this.renderForecast(stateObj.attributes.forecast) : ""}
@@ -359,10 +359,7 @@ class MeteofranceWeatherCard extends LitElement {
         ${html`
         ${this.getOneHourForecast(rainForecast).map(
       (forecast) => html`
-        <li class="rain-${forecast[0]}min" style="opacity: ${forecast[1]}" title="${forecast[2] + " " + (forecast[0] == 0
-          ? " actuellement"
-          : "dans " + forecast[0] + " min")}">
-        </li>`
+        <li class="rain-${forecast[0]}min" style="opacity: ${forecast[1]}" title="${forecast[2]}"></li>`
     )}
         `}
       </ul>
@@ -383,35 +380,22 @@ class MeteofranceWeatherCard extends LitElement {
       return html``;
     }
 
-    this.numberElements++;
-
-    return html`
-      ${this.renderAlertType("Rouge", alertForecast)}
-      ${this.renderAlertType("Orange", alertForecast)}
-      ${this.renderAlertType("Jaune", alertForecast)}`;
-  }
-
-  renderAlertType(level, alertForecast) {
-    const alerts = this.getAlertForecast(level, alertForecast);
+    const alerts = this.getAlertForecast(alertForecast);
 
     if (alerts.length == 0)
       return html``
 
-    let lclevel = level.toLowerCase();
+    this.numberElements++;
 
     return html`
-    <ul class="flow-row alert ${lclevel}">
-      <li>
-        <ha-icon icon="mdi:alert"></ha-icon>Vigilance ${lclevel} en cours
-      </li>
-        ${this.getAlertForecast(level, alertForecast).map(
+      <div class="flow-row alertForecast ${this.numberElements > 1 ? " spacer" : ""}">
+        ${alerts.map(
       (phenomenon) => html`
-      <li>
-        <ha-icon icon="${phenomenon[1]}" title="${phenomenon[0]}"></ha-icon>
-      </li>`
+      <div class="alertForecast${phenomenon.color}">
+        <ha-icon icon="${phenomenon.icon}" title="${phenomenon.name}"></ha-icon>
+      </div>`
     )}
-      </div>
-    </ul>`
+    </div>`
   }
 
   renderForecast(forecast) {
@@ -521,40 +505,55 @@ class MeteofranceWeatherCard extends LitElement {
       rainForecastEntity.attributes["1_hour_forecast"]
     )) {
       if (time != undefined && rainForecastValues.get(value) > 0.1) {
-        return value + ((time == "0 min") ? " actuellement !" : " dans " + time + ".");
+	let timeStr = time.replace(/([345])5/g, "$10");
+        return value + ((time == "0 min") ? " actuellement." : " dans " + timeStr + ".");
       }
     }
 
     return "Pas de pluie dans l'heure."
   }
 
-  getAlertForecast(color, alertEntity) {
-    let phenomenaIcons = {
-      "Vent violent": "mdi:weather-windy",
-      "Pluie-inondation": "mdi:weather-pouring",
-      Orages: "mdi:weather-lightning",
-      Inondation: "mdi:home-flood",
-      "Neige-verglas": "mdi:weather-snowy-heavy",
-      Canicule: "mdi:weather-sunny-alert",
-      "Grand-froid": "mdi:snowflake",
-      Avalanches: "mdi:image-filter-hdr",
-      "Vagues-submersion": "mdi:waves",
-    };
+  getAlertForecast(alertEntity) {
+    let phenomenaList = [ ]
 
     if (alertEntity == undefined) {
       return [];
     }
 
-    let phenomenaList = [];
-    for (const [currentPhenomenon, currentPhenomenonColor] of Object.entries(
-      alertEntity.attributes
-    )) {
-      if (currentPhenomenonColor == color) {
-        phenomenaList.push([
-          currentPhenomenon,
-          phenomenaIcons[currentPhenomenon],
-        ]);
-      }
+    if(!this._config.hide_alertVentViolent && alertEntity.attributes['Vent violent']) {
+       phenomenaList.push({ name: 'Vent violent', icon: 'mdi:weather-windy', color: alertEntity.attributes['Vent violent'] });
+    }
+
+    if(!this._config.hide_alertPluieInondation && alertEntity.attributes['Pluie-inondation']) {
+       phenomenaList.push({ name: 'Pluie-inondation', icon: 'mdi:weather-pouring', color: alertEntity.attributes['Pluie-inondation'] });
+    }
+
+    if(!this._config.hide_alertOrages && alertEntity.attributes['Orages']) {
+       phenomenaList.push({ name: 'Orages', icon: 'mdi:weather-lightning', color: alertEntity.attributes['Orages'] });
+    }
+
+    if(!this._config.hide_alertInondation && alertEntity.attributes['Inondation']) {
+       phenomenaList.push({ name: 'Inondation', icon: 'mdi:home-flood', color: alertEntity.attributes['Inondation'] });
+    }
+
+    if(!this._config.hide_alertNeigeVerglas && alertEntity.attributes['Neige-verglas']) {
+       phenomenaList.push({ name: 'Neige-verglas', icon: 'mdi:weather-snowy-heavy', color: alertEntity.attributes['Neige-verglas'] });
+    }
+
+    if(!this._config.hide_alertCanicule && alertEntity.attributes['Canicule']) {
+       phenomenaList.push({ name: 'Canicule', icon: 'mdi:weather-sunny-alert', color: alertEntity.attributes['Canicule'] });
+    }
+
+    if(!this._config.hide_alertGrandFroid && alertEntity.attributes['Grand-froid']) {
+       phenomenaList.push({ name: 'Grand-froid', icon: 'mdi:snowflake', color: alertEntity.attributes['Grand-froid'] });
+    }
+
+    if(!this._config.hide_alertAvalanches && alertEntity.attributes['Avalanches']) {
+       phenomenaList.push({ name: 'Avalanches', icon: 'mdi:image-filter-hdr', color: alertEntity.attributes['Avalanches'] });
+    }
+
+    if(!this._config.hide_alertVaguesSubmersion && alertEntity.attributes['Vagues-submersion']) {
+       phenomenaList.push({ name: 'Vagues-submersion', icon: 'mdi:waves', color: alertEntity.attributes['Vagues-submersion'] });
     }
 
     return phenomenaList;
@@ -747,28 +746,34 @@ class MeteofranceWeatherCard extends LitElement {
       }
 
       /* Alert */
-      .alert {
+      .alertForecast {
+        text-align: center;
+        flex-wrap: nowrap;
+      }
+
+      .alertForecast > div {
+        flex: 1;
+        color: var(--paper-item-icon-color);
+        color: grey;
+        border: 0;
         border-radius: 5px;
-        padding: 5px 10px;
-        font-weight: 600;
-        color: var(--primary -text -color);
-        margin: 2px;
+        margin-left: 1px;
+        margin-right: 1px;
       }
 
-      .alert > *:first-child {
-        margin-right: auto;
+      .alertForecastVert {
       }
 
-      .alert.jaune {
-        background-color: rgba(255,235,0,0.5);
+      .alertForecastJaune {
+        background-color: yellow;
       }
 
-      .alert.orange {
-        background-color: rgba(255,152,0,0.5);
+      .alertForecastOrange {
+        background-color: orange;
       }
 
-      .alert.rouge {
-        background-color: rgba(244,67,54,0.5);
+      .alertForecastRouge {
+        background-color: red;
       }
 
       /* Forecast */
