@@ -10,6 +10,8 @@
 aarlo:
   username: !secret arlo_username
   password: !secret arlo_password
+  user_agent: linux
+  stream_snapshot: true
 
 #
 # Alarm (gestion)
