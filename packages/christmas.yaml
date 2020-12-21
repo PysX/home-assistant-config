@@ -1,0 +1,31 @@
+###############################################################################
+#                               Automations
+###############################################################################
+
+automation:
+  #
+  # Allumer Sapin
+  #
+  - alias: Noel - Allumer sapin
+    trigger:
+      - platform: time
+        at: "07:20:00"
+      - platform: time
+        at: "16:30:00"
+    action:
+      - service: switch.turn_on
+        data:
+          entity_id: switch.fibaro_wall_plug_e_f_switch_3
+  #
+  # Eteindre Sapin
+  #
+  - alias: Noel - Eteindre sapin
+    trigger:
+      - platform: time
+        at: "08:10:00"
+      - platform: time
+        at: "22:45:00"
+    action:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.fibaro_wall_plug_e_f_switch_3
