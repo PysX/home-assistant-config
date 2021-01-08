@@ -9,3 +9,33 @@ homeassistant:
     media_player.xboxone:
       friendly_name: XboxOne
       device_class: tv
+
+sensor:
+  - platform: history_stats
+    name: In game last 7 days
+    entity_id: binary_sensor.pwyk_in_game
+    state: 'on'
+    end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    duration:
+      days: 7
+
+###############################################################################
+#                               Automations
+###############################################################################
+
+automation:
+  #
+  # Eteints les lumières du bureau si la XBOX est éteinte
+  #
+  - alias: Xbox - Eteindre lumières
+    trigger:
+      - platform: state
+        entity_id: media_player.xboxone
+        from: 'on'
+        to: 'off'
+    action:
+      - service: light.turn_off
+        data:
+          entity_id: 
+            - light.hue_play_3
+            - light.hue_play_4
