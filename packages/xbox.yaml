@@ -36,6 +36,6 @@ automation:
     action:
       - service: light.turn_off
         data:
-          entity_id: 
+          entity_id:
             - light.hue_play_3
             - light.hue_play_4

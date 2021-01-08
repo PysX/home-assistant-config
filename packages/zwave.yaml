@@ -83,8 +83,8 @@ automation:
     action:
       - service: input_select.set_options
         data_template:
-            entity_id: input_select.zwave_entities
-            options: >-
-              [{%- for item in (states | selectattr('attributes.node_id') | unique(attribute='attributes.node_id') | list ) %}
-              '{{item.attributes.friendly_name + ' ('+item.attributes.node_id|string+')' }}'{% if not loop.last %}, {% endif %}
-              {%- endfor %}]
+          entity_id: input_select.zwave_entities
+          options: >-
+            [{%- for item in (states | selectattr('attributes.node_id') | unique(attribute='attributes.node_id') | list ) %}
+            '{{item.attributes.friendly_name + ' ('+item.attributes.node_id|string+')' }}'{% if not loop.last %}, {% endif %}
+            {%- endfor %}]
