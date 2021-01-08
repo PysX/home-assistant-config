@@ -1,0 +1,73 @@
+###############################################################################
+#   @package        :   Appliances
+#   @description    :   Follow and notify appliances running
+#   @url            : https://github.com/basnijholt/home-assistant-config
+###############################################################################
+
+######################################################################################
+# Binary sensors
+######################################################################################
+binary_sensor:
+  - platform: template
+    sensors:
+      #
+      # if current > 0.2 A and stay over for 5 min else off
+      #
+      washing_machine:
+        friendly_name: Lave Linge
+        value_template: "{{ states('sensor.smart_switch_6_electric_a_2')|float(default=0) > 0.2 }}"
+        delay_off:
+          minutes: 5
+        icon_template: >
+          {% if is_state("binary_sensor.washing_machine", "on") %}
+          mdi:washing-machine
+          {% else %}
+          mdi:washing-machine-off
+          {% endif %}
+      #
+      # if current > 0.5 A and stay over for 2 min else off
+      #
+      dryer_machine:
+        friendly_name: Sèche Linge
+        value_template: "{{ states('sensor.smart_switch_6_electric_a')|float(default=0) > 0.5 }}"
+        delay_off:
+          minutes: 2
+        icon_template: >
+          {% if is_state("binary_sensor.dryer_machine", "on") %}
+          mdi:tumble-dryer
+          {% else %}
+          mdi:tumble-dryer-off
+          {% endif %}
+
+###############################################################################
+#                               Automations
+###############################################################################
+automation:
+  #
+  # Send notification when charge start
+  #
+  - alias: Appliance - Machine à laver terminée
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.washing_machine
+        from: "on"
+        to: "off"
+    action:
+      - service: notify.mobile_app_iphone_de_cedric
+        data_template:
+          title: "Machine à laver terminée !"
+          message: "La machine à laver a terminé son cycle."
+  #
+  # Send notification when charge start
+  #
+  - alias: Appliance - Sèche linge terminé
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.dryer_machine
+        from: "on"
+        to: "off"
+    action:
+      - service: notify.mobile_app_iphone_de_cedric
+        data_template:
+          title: "Sèche linge terminé !"
+          message: "Le sèche linge a terminé son cycle."
