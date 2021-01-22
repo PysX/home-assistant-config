@@ -88,3 +88,16 @@ automation:
             [{%- for item in (states | selectattr('attributes.node_id') | unique(attribute='attributes.node_id') | list ) %}
             '{{item.attributes.friendly_name + ' ('+item.attributes.node_id|string+')' }}'{% if not loop.last %}, {% endif %}
             {%- endfor %}]
+  #
+  # Fix some problem with node 20
+  #
+  - alias: OZW - Update node 20
+    trigger:
+      - platform: time_pattern
+        minutes: "/30"
+    action:
+      - data_template:
+          payload:
+            '{{ "{" + "\"node\": 20 }" }}'
+          topic: OpenZWave/1/command/refreshnodeinfo/
+        service: mqtt.publish
