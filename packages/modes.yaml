@@ -1,0 +1,106 @@
+###############################################################################
+#   @package        :   Modes and automation
+#   @description    :   Modes and automations
+#   @url            :
+###############################################################################
+
+###############################################################################
+#                               Input Booleans
+###############################################################################
+input_boolean:
+  mode_home:
+    name: Home
+    icon: mdi:home-account
+
+  mode_away:
+    name: Away
+    icon: mdi:walk
+
+  mode_night:
+    name: Night
+    icon: mdi:weather-night
+
+  mode_holiday:
+    name: Holiday 
+    icon: mdi:airplane-takeoff
+
+###############################################################################
+#                               Sensors
+###############################################################################
+sensor:
+  - platform: template
+    sensors:
+      mode:
+        friendly_name: 'HA Mode'
+        entity_id: input_boolean.mode_home,
+                   input_boolean.mode_away,
+                   input_boolean.mode_holiday, 
+                   input_boolean.mode_night
+        value_template: >-
+         {% if is_state('input_boolean.mode_home', 'on') %}
+            home
+         {% elif is_state('input_boolean.mode_away', 'on') %}
+            away
+         {% elif is_state('input_boolean.mode_night', 'on') %}
+           night
+         {% elif is_state('input_boolean.mode_holiday', 'on') %}
+           holiday
+         {% endif %}
+        icon_template: >-
+          {% if is_state('input_boolean.mode_home', 'on') %}
+             mdi:home-account
+          {% elif is_state('input_boolean.mode_away', 'on') %}
+             mdi:walk
+          {% elif is_state('input_boolean.mode_night', 'on') %}
+             mdi:weather-night
+          {% elif is_state('input_boolean.mode_holiday', 'on') %}
+            mdi:airplane-takeoff
+          {% endif %}
+
+###############################################################################
+#                               Binary sensors
+###############################################################################
+binary_sensor:
+  - platform: template
+    sensors:
+      mode:
+        friendly_name: "HA Mode"
+        entity_id: sensor.mode
+        value_template: >-
+          {{ is_state('sensor.mode', 'home') 
+            or is_state('sensor.mode', 'away')
+            or is_state('sensor.mode', 'night')
+            or is_state('sensor.mode', 'holiday') }}
+        icon_template: >-
+          {% if is_state('sensor.mode', 'home') %}
+            mdi:home-account
+          {% elif is_state('sensor.mode', 'away') %}
+            mdi:walk
+          {% elif is_state('sensor.mode', 'night') %}
+            mdi:weather-night
+          {% elif is_state('sensor.mode', 'holiday') %}
+            mdi:airplane-takeoff
+          {% endif %}
+
+###############################################################################
+#                               Automations
+###############################################################################
+
+automation:
+  #
+  # Permet d'allumer les leds TV 
+  #
+  - alias: HA Mode set
+    trigger:
+      platform: state
+      entity_id: input_boolean.mode_home,
+                input_boolean.mode_away,
+                input_boolean.mode_holiday, 
+                input_boolean.mode_night
+      to: 'on'
+    action:
+      - service: input_boolean.turn_off
+        data_template:
+          entity_id: >
+            {% set booleans = [ 'input_boolean.mode_home', 'input_boolean.mode_away', 'input_boolean.mode_holiday', 'input_boolean.mode_night' ] | reject('equalto', trigger.entity_id) %}
+            {{ booleans | list | join(', ') }}
