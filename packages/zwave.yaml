@@ -94,7 +94,7 @@ automation:
   - alias: OZW - Update node 20
     trigger:
       - platform: time_pattern
-        minutes: "/30"
+        minutes: "/59"
     action:
       - data_template:
           payload:
