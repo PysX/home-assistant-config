@@ -21,7 +21,7 @@ input_boolean:
     icon: mdi:weather-night
 
   mode_holiday:
-    name: Holiday 
+    name: Holiday
     icon: mdi:airplane-takeoff
 
 ###############################################################################
@@ -67,7 +67,7 @@ binary_sensor:
         friendly_name: "HA Mode"
         entity_id: sensor.mode
         value_template: >-
-          {{ is_state('sensor.mode', 'home') 
+          {{ is_state('sensor.mode', 'home')
             or is_state('sensor.mode', 'away')
             or is_state('sensor.mode', 'night')
             or is_state('sensor.mode', 'holiday') }}
