@@ -34,7 +34,7 @@ sensor:
         friendly_name: 'HA Mode'
         entity_id: input_boolean.mode_home,
                    input_boolean.mode_away,
-                   input_boolean.mode_holiday, 
+                   input_boolean.mode_holiday,
                    input_boolean.mode_night
         value_template: >-
          {% if is_state('input_boolean.mode_home', 'on') %}
@@ -88,14 +88,14 @@ binary_sensor:
 
 automation:
   #
-  # Permet d'allumer les leds TV 
+  # Updates modes on change
   #
   - alias: HA Mode set
     trigger:
       platform: state
       entity_id: input_boolean.mode_home,
                 input_boolean.mode_away,
-                input_boolean.mode_holiday, 
+                input_boolean.mode_holiday,
                 input_boolean.mode_night
       to: 'on'
     action:
