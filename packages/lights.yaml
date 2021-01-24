@@ -10,7 +10,7 @@
 
 automation:
   #
-  # Permet d'allumer les leds TV 
+  # Permet d'allumer les leds TV
   #
   - alias: TV - Allumer leds TV
     trigger:
@@ -24,10 +24,10 @@ automation:
           entity_id:
             - switch.fibaro_wall_plug_e_f_switch
 
-  #
-  # Controle lumière Bureau en télétravail 
-  # (Non terminé)
-  #
+#
+# Controle lumière Bureau en télétravail
+# (Non terminé)
+#
 #  - alias: Bureau - Allumer ordinateur
 #    trigger:
 #
