@@ -114,15 +114,4 @@ automation:
             '{ "doreturnroute": true }'
           topic: OpenZWave/1/command/healnetwork/
         service: mqtt.publish
-  #
-  # Fix OZW
-  #
-  # - alias: "OZW - Restart addon"
-  #   trigger:
-  #     - platform: time
-  #       at: '03:00:00'
-  #   action:
-  #     - service: hassio.addon_restart
-  #       data:
-  #         addon: addon_core_zwave
 
