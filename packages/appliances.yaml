@@ -15,7 +15,7 @@ binary_sensor:
       #
       washing_machine:
         friendly_name: Lave Linge
-        value_template: "{{ states('sensor.smart_switch_6_electric_a_2')|float(default=0) > 0.2 }}"
+        value_template: "{{ states('sensor.smart_switch_6_value_electric_consumed_8')|float(default=0) > 0.2 }}"
         delay_off:
           minutes: 5
         icon_template: >
@@ -29,7 +29,7 @@ binary_sensor:
       #
       dryer_machine:
         friendly_name: Sèche Linge
-        value_template: "{{ states('sensor.smart_switch_6_electric_a')|float(default=0) > 0.5 }}"
+        value_template: "{{ states('sensor.smart_switch_6_value_electric_consumed_4')|float(default=0) > 0.5 }}"
         delay_off:
           minutes: 2
         icon_template: >
