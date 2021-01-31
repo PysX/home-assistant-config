@@ -22,7 +22,7 @@ automation:
       - service: switch.turn_on
         data:
           entity_id:
-            - switch.fibaro_wall_plug_e_f_switch
+            - switch.metered_wall_plug_switch_current_value_2
 
 #
 # Controle lumière Bureau en télétravail

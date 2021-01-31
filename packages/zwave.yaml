@@ -1,117 +1,117 @@
-###############################################################################
-#   @package        :   ZWave
-#   @description    :   Contol OZW Beta components
-#   @url            :   https://www.home-assistant.io/integrations/ozw/
-###############################################################################
+# ###############################################################################
+# #   @package        :   ZWave
+# #   @description    :   Contol OZW Beta components
+# #   @url            :   https://www.home-assistant.io/integrations/ozw/
+# ###############################################################################
 
-#
-# Binary sensors
-#
-binary_sensor:
-  # Network status / query mqtt
-  - platform: mqtt
-    name: ozw_network_status
-    state_topic: OpenZWave/1/status/
-    value_template: >
-      {{ "ON" if value_json.Status in ["driverAwakeNodesQueried", "driverAllNodesQueriedSomeDead", "driverAllNodesQueried"] else "OFF" }}
-    json_attributes_topic: OpenZWave/1/status/
-    device_class: "connectivity"
+# #
+# # Binary sensors
+# #
+# binary_sensor:
+#   # Network status / query mqtt
+#   - platform: mqtt
+#     name: ozw_network_status
+#     state_topic: OpenZWave/1/status/
+#     value_template: >
+#       {{ "ON" if value_json.Status in ["driverAwakeNodesQueried", "driverAllNodesQueriedSomeDead", "driverAllNodesQueried"] else "OFF" }}
+#     json_attributes_topic: OpenZWave/1/status/
+#     device_class: "connectivity"
 
-#
-# Sensors
-#
-sensor:
-  # Notifications
-  - platform: mqtt
-    name: ozw_network_notification
-    state_topic: OpenZWave/1/event/notification/
-    value_template: "{{ value_json.Event }}"
-    json_attributes_topic: OpenZWave/1/event/notification/
+# #
+# # Sensors
+# #
+# sensor:
+#   # Notifications
+#   - platform: mqtt
+#     name: ozw_network_notification
+#     state_topic: OpenZWave/1/event/notification/
+#     value_template: "{{ value_json.Event }}"
+#     json_attributes_topic: OpenZWave/1/event/notification/
 
-#
-# Input select
-#
-input_select:
-  # Input select for zwave entities
-  zwave_entities:
-    name: Zwave Entities
-    options:
-      - Placeholder
-#
-# Input number
-#
-input_number:
-  ozw_node_id:
-    name: Node ID
-    min: 1
-    max: 254
-    mode: box
+# #
+# # Input select
+# #
+# input_select:
+#   # Input select for zwave entities
+#   zwave_entities:
+#     name: Zwave Entities
+#     options:
+#       - Placeholder
+# #
+# # Input number
+# #
+# input_number:
+#   ozw_node_id:
+#     name: Node ID
+#     min: 1
+#     max: 254
+#     mode: box
 
-###############################################################################
-#                               Scripts
-###############################################################################
-script:
-  #
-  # Send command via mqtt
-  #
-  ozw_node_command:
-    alias: Send OZW Node Command
-    icon: mdi:refresh
-    mode: single
-    sequence:
-      - data_template:
-          payload:
-            '{{ "{" + "\"node\":" + states(''input_number.ozw_node_id'')|int|string
-            + "}" }}'
-          topic: OpenZWave/1/command/{{zw_command}}/
-        service: mqtt.publish
+# ###############################################################################
+# #                               Scripts
+# ###############################################################################
+# script:
+#   #
+#   # Send command via mqtt
+#   #
+#   ozw_node_command:
+#     alias: Send OZW Node Command
+#     icon: mdi:refresh
+#     mode: single
+#     sequence:
+#       - data_template:
+#           payload:
+#             '{{ "{" + "\"node\":" + states(''input_number.ozw_node_id'')|int|string
+#             + "}" }}'
+#           topic: OpenZWave/1/command/{{zw_command}}/
+#         service: mqtt.publish
 
-###############################################################################
-#                               Automations
-###############################################################################
+# ###############################################################################
+# #                               Automations
+# ###############################################################################
 
-automation:
-  #
-  # Update Select list
-  #
-  - alias: OZW - Update Select List
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.ozw_network_status
-        from: "off"
-        to: "on"
-    action:
-      - service: input_select.set_options
-        data_template:
-          entity_id: input_select.zwave_entities
-          options: >-
-            [{%- for item in (states | selectattr('attributes.node_id') | unique(attribute='attributes.node_id') | list ) %}
-            '{{item.attributes.friendly_name + ' ('+item.attributes.node_id|string+')' }}'{% if not loop.last %}, {% endif %}
-            {%- endfor %}]
-  #
-  # Fix some problem with node 20
-  #
-  - alias: OZW - Update node 20
-    trigger:
-      - platform: time_pattern
-        minutes: "/59"
-    action:
-      - data_template:
-          payload:
-            '{{ "{" + "\"node\": 20 }" }}'
-          topic: OpenZWave/1/command/refreshnodeinfo/
-        service: mqtt.publish
-  #
-  # HealNetwork
-  #
-  - alias: OZW - Heal Network
-    trigger:
-      - platform: time
-        at: '03:15:00'
-    action:
-      - data_template:
-          payload:
-            '{ "doreturnroute": true }'
-          topic: OpenZWave/1/command/healnetwork/
-        service: mqtt.publish
+# automation:
+#   #
+#   # Update Select list
+#   #
+#   - alias: OZW - Update Select List
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.ozw_network_status
+#         from: "off"
+#         to: "on"
+#     action:
+#       - service: input_select.set_options
+#         data_template:
+#           entity_id: input_select.zwave_entities
+#           options: >-
+#             [{%- for item in (states | selectattr('attributes.node_id') | unique(attribute='attributes.node_id') | list ) %}
+#             '{{item.attributes.friendly_name + ' ('+item.attributes.node_id|string+')' }}'{% if not loop.last %}, {% endif %}
+#             {%- endfor %}]
+#   #
+#   # Fix some problem with node 20
+#   #
+#   - alias: OZW - Update node 20
+#     trigger:
+#       - platform: time_pattern
+#         minutes: "/59"
+#     action:
+#       - data_template:
+#           payload:
+#             '{{ "{" + "\"node\": 20 }" }}'
+#           topic: OpenZWave/1/command/refreshnodeinfo/
+#         service: mqtt.publish
+#   #
+#   # HealNetwork
+#   #
+#   # - alias: OZW - Heal Network
+#   #   trigger:
+#   #     - platform: time
+#   #       at: '03:15:00'
+#   #   action:
+#   #     - data_template:
+#   #         payload:
+#   #           '{ "doreturnroute": true }'
+#   #         topic: OpenZWave/1/command/healnetwork/
+#   #       service: mqtt.publish
 

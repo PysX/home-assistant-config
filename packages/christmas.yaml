@@ -80,7 +80,7 @@ automation:
     action:
       - service: switch.turn_on
         data:
-          entity_id: switch.fibaro_wall_plug_e_f_switch_3
+          entity_id: switch.metered_wall_plug_switch_current_value_4
   #
   # Eteindre Sapin en semaine
   #
@@ -97,7 +97,7 @@ automation:
     action:
       - service: switch.turn_off
         data:
-          entity_id: switch.fibaro_wall_plug_e_f_switch_3
+          entity_id: switch.metered_wall_plug_switch_current_value_4
   #
   # Allumer Sapin en weekend
   #
@@ -112,7 +112,7 @@ automation:
     action:
       - service: switch.turn_on
         data:
-          entity_id: switch.fibaro_wall_plug_e_f_switch_3
+          entity_id: switch.metered_wall_plug_switch_current_value_4
   #
   # Eteindre Sapin en weekend
   #
@@ -127,4 +127,4 @@ automation:
     action:
       - service: switch.turn_off
         data:
-          entity_id: switch.fibaro_wall_plug_e_f_switch_3
+          entity_id: switch.metered_wall_plug_switch_current_value_4
