@@ -13,7 +13,7 @@ aarlo:
   user_agent: linux
   stream_snapshot: true
   mode_api: v2
-  hide_deprecated_services: True
+  hide_deprecated_services: true
   # verbose_debug: True
 
 #
