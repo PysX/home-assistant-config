@@ -20,111 +20,20 @@ input_boolean:
 
 automation:
   #
-  # Permet d'activer les automations de Noël
+  # Permet d'activer/desactiver les automations de Noël
   #
-  - alias: Noel - Activer automatisations
+  - alias: Noel - Activer/Desactiver Planifications
     trigger:
       - platform: state
         entity_id: input_boolean.christmas_lights_run
-        from: 'off'
-        to: 'on'
     action:
-      - service: automation.turn_on
+      - service: >
+          {% if states('input_boolean.christmas_lights_run') == 'on' %}
+            switch.turn_on
+          {% else %}
+            switch.turn_off
+          {% endif %}
         data:
-          entity_id: automation.noel_semaine_allumer_sapin
-      - service: automation.turn_on
-        data:
-          entity_id: automation.noel_semaine_eteindre_sapin
-      - service: automation.turn_on
-        data:
-          entity_id: automation.noel_weekend_allumer_sapin
-      - service: automation.turn_on
-        data:
-          entity_id: automation.noel_weekend_eteindre_sapin
-  #
-  # Permet de désactiver les automations de Noël
-  #
-  - alias: Noel - Désactiver automatisations
-    trigger:
-      - platform: state
-        entity_id: input_boolean.christmas_lights_run
-        from: 'on'
-        to: 'off'
-    action:
-      - service: automation.turn_off
-        data:
-          entity_id: automation.noel_semaine_allumer_sapin
-      - service: automation.turn_off
-        data:
-          entity_id: automation.noel_semaine_eteindre_sapin
-      - service: automation.turn_off
-        data:
-          entity_id: automation.noel_weekend_allumer_sapin
-      - service: automation.turn_off
-        data:
-          entity_id: automation.noel_weekend_eteindre_sapin
-
-  #
-  # Allumer Sapin en semaine
-  #
-  - id: noel_semaine_allumer_sapin
-    alias: Noel - Semaine - Allumer sapin
-    trigger:
-      - platform: time
-        at: "07:20:00"
-      - platform: time
-        at: "16:30:00"
-    condition:
-      - condition: time
-        weekday: [mon, tue, wed, thu, fri]
-    action:
-      - service: switch.turn_on
-        data:
-          entity_id: switch.metered_wall_plug_switch_current_value_4
-  #
-  # Eteindre Sapin en semaine
-  #
-  - id: noel_semaine_eteindre_sapin
-    alias: Noel - Semaine - Eteindre sapin
-    trigger:
-      - platform: time
-        at: "08:10:00"
-      - platform: time
-        at: "22:45:00"
-    condition:
-      - condition: time
-        weekday: [mon, tue, wed, thu, fri]
-    action:
-      - service: switch.turn_off
-        data:
-          entity_id: switch.metered_wall_plug_switch_current_value_4
-  #
-  # Allumer Sapin en weekend
-  #
-  - id: noel_weekend_allumer_sapin
-    alias: Noel - Weekend - Allumer sapin
-    trigger:
-      - platform: time
-        at: "08:20:00"
-    condition:
-      - condition: time
-        weekday: [sat, sun]
-    action:
-      - service: switch.turn_on
-        data:
-          entity_id: switch.metered_wall_plug_switch_current_value_4
-  #
-  # Eteindre Sapin en weekend
-  #
-  - id: noel_weekend_eteindre_sapin
-    alias: Noel - Weekend - Eteindre sapin
-    trigger:
-      - platform: time
-        at: "22:45:00"
-    condition:
-      - condition: time
-        weekday: [sat, sun]
-    action:
-      - service: switch.turn_off
-        data:
-          entity_id: switch.metered_wall_plug_switch_current_value_4
+          entity_id:
+            - switch.schedule_noel_semaine_sapin
+            - switch.schedule_noel_weekend_sapin
