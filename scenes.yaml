@@ -1,0 +1,88 @@
+- id: '1612806545585'
+  name: Bureau - Détente
+  entities:
+    light.bureau:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 145
+      hs_color:
+      - 36.568
+      - 66.275
+      rgb_color:
+      - 255
+      - 188
+      - 85
+      xy_color:
+      - 0.502
+      - 0.414
+      is_hue_group: true
+      friendly_name: Bureau
+      supported_features: 63
+      state: 'on'
+  icon: mdi:brightness-4
+- id: '1612806781639'
+  name: Bureau - Lecture
+  entities:
+    light.bureau:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 38.88
+      - 49.02
+      rgb_color:
+      - 255
+      - 210
+      - 129
+      xy_color:
+      - 0.447
+      - 0.406
+      is_hue_group: true
+      friendly_name: Bureau
+      supported_features: 63
+      state: 'on'
+  icon: mdi:book-open
+- id: '1612806813154'
+  name: Bureau - Concentration
+  entities:
+    light.bureau:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 45
+      - 21.961
+      rgb_color:
+      - 255
+      - 240
+      - 198
+      xy_color:
+      - 0.37
+      - 0.372
+      is_hue_group: true
+      friendly_name: Bureau
+      supported_features: 63
+      state: 'on'
+  icon: mdi:car-parking-lights
+- id: '1612807089939'
+  name: Bureau - Off
+  entities:
+    light.bureau:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      is_hue_group: true
+      friendly_name: Bureau
+      supported_features: 63
+      state: 'off'
