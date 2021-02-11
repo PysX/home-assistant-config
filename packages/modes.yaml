@@ -32,10 +32,6 @@ sensor:
     sensors:
       mode:
         friendly_name: 'HA Mode'
-        entity_id: input_boolean.mode_home,
-                   input_boolean.mode_away,
-                   input_boolean.mode_holiday,
-                   input_boolean.mode_night
         value_template: >-
          {% if is_state('input_boolean.mode_home', 'on') %}
             home
@@ -65,7 +61,6 @@ binary_sensor:
     sensors:
       mode:
         friendly_name: "HA Mode"
-        entity_id: sensor.mode
         value_template: >-
           {{ is_state('sensor.mode', 'home')
             or is_state('sensor.mode', 'away')
