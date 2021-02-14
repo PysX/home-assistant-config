@@ -55,16 +55,16 @@ action:
   - choose:
       - conditions:
           - '{{ command == ''single'' }}'
-          sequence: !input 'button_single_press'
+            sequence: !input 'button_single_press'
       - conditions:
           - '{{ command == ''double'' }}'
-          sequence: !input 'button_double_press'
+            sequence: !input 'button_double_press'
       - conditions:
           - '{{ command == ''hold'' }}'
-          sequence: !input 'button_long_press'
+          s equence: !input 'button_long_press'
       - conditions:
           - '{{ command == ''release'' }}'
-          sequence: !input 'button_released'
+            sequence: !input 'button_released'
       - conditions:
           - '{{ command == ''shake'' }}'
-          sequence: !input 'button_shaken'
+            sequence: !input 'button_shaken'
