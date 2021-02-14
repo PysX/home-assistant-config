@@ -5,6 +5,7 @@ ignore: |
   automations.yaml
   scenes.yaml
   themes/
+  blueprints/
 rules:
   braces:
     level: error
