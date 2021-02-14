@@ -54,17 +54,17 @@ action:
       command: '{{ trigger.event.data.command }}'
   - choose:
       - conditions:
-        - '{{ command == ''single'' }}'
-        sequence: !input 'button_single_press'
+          - '{{ command == ''single'' }}'
+          sequence: !input 'button_single_press'
       - conditions:
-        - '{{ command == ''double'' }}'
-        sequence: !input 'button_double_press'
+          - '{{ command == ''double'' }}'
+          sequence: !input 'button_double_press'
       - conditions:
-        - '{{ command == ''hold'' }}'
-        sequence: !input 'button_long_press'
+          - '{{ command == ''hold'' }}'
+          sequence: !input 'button_long_press'
       - conditions:
-        - '{{ command == ''release'' }}'
-        sequence: !input 'button_released'
+          - '{{ command == ''release'' }}'
+          sequence: !input 'button_released'
       - conditions:
-        - '{{ command == ''shake'' }}'
-        sequence: !input 'button_shaken'
+          - '{{ command == ''shake'' }}'
+          sequence: !input 'button_shaken'
