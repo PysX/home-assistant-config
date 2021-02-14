@@ -1,0 +1,74 @@
+###############################################################################
+#   @package        :   Aqara Button manager
+#   @description    :   Modes and automations
+#   @url            :
+###############################################################################
+
+###############################################################################
+#                               Input Booleans
+###############################################################################
+#
+# As button is event based, theses input boolean will be triggered by automations
+#
+input_boolean:
+  button_short_press:
+    name: Button Short Press
+    icon: mdi:gesture-tap
+    initial: off
+  button_double_press:
+    name: Button Double Press
+    icon: mdi:gesture-double-tap
+    initial: off
+  button_long_press:
+    name: Button Long Press
+    icon: mdi:gesture-tap-hold
+
+###############################################################################
+#                               Automations
+###############################################################################
+#
+# Automations to update input booleans
+# Created with blue print (cf path)
+# - short and double press = turn boolean ON for 1 sec.
+# - long press = turn on input boolean, off on release
+#
+automation:
+  - id: '1613323336828'
+    alias: ZHA - Aqara Wireless Mini Switch
+    description: ''
+    use_blueprint:
+      path: thedudeabides/zha-aqara-wireless-mini-switch-model-lumi-sensor-swit.yaml
+      input:
+        aqara_mini_switch: cb23e81a177749a253ed6851c1110046
+        button_single_press:
+        - service: input_boolean.turn_on
+          data: {}
+          entity_id: input_boolean.button_short_press
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - service: input_boolean.turn_off
+          data: {}
+          entity_id: input_boolean.button_short_press
+        button_double_press:
+        - service: input_boolean.turn_on
+          data: {}
+          entity_id: input_boolean.button_double_press
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - service: input_boolean.turn_off
+          data: {}
+          entity_id: input_boolean.button_double_press
+        button_long_press:
+        - service: input_boolean.turn_on
+          data: {}
+          entity_id: input_boolean.button_long_press
+        button_released:
+        - service: input_boolean.turn_off
+          data: {}
+          entity_id: input_boolean.button_long_press
