@@ -1,0 +1,9 @@
+###############################################################################
+#   @package        :   Ltss
+#   @description    :   Long time state storage : stockage dans timescaledb
+#   @url            :   https://github.com/freol35241/ltss
+#   @url            :   https://community.home-assistant.io/t/custom-component-long-time-state-storage-ltss-utilizing-timescaledb/155047
+###############################################################################
+
+ltss:
+  db_url: !secret postgres_url
