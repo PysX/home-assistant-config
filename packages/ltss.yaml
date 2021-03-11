@@ -7,3 +7,5 @@
 
 ltss:
   db_url: !secret postgres_url
+  # 30 days (default value)
+  chunk_time_interval: 2592000000000
