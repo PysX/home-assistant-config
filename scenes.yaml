@@ -86,3 +86,181 @@
       friendly_name: Bureau
       supported_features: 63
       state: 'off'
+- id: '1615362691209'
+  name: XBox - Allumer
+  entities:
+    light.osram_ruban:
+      min_mireds: 125
+      max_mireds: 666
+      effect_list:
+      - colorloop
+      brightness: 150
+      hs_color:
+      - 105
+      - 100
+      rgb_color:
+      - 63
+      - 255
+      - 0
+      xy_color:
+      - 0.199
+      - 0.724
+      off_brightness:
+      friendly_name: Ruban
+      supported_features: 63
+      state: 'on'
+  icon: mdi:microsoft-xbox
+- id: '1615363316667'
+  name: Home - Avant dodo
+  entities:
+    light.chevet_droite:
+      min_mireds: 153
+      max_mireds: 454
+      brightness: 79
+      color_temp: 443
+      friendly_name: Chevet droite
+      supported_features: 43
+      state: 'on'
+    light.chevet_gauche:
+      min_mireds: 153
+      max_mireds: 454
+      friendly_name: Chevet gauche
+      supported_features: 43
+      state: 'off'
+    switch.innr_sp_220:
+      friendly_name: innr SP 220 47251afe on_off
+      state: 'off'
+    switch.innr_sp_220_2:
+      friendly_name: innr SP 220 9c1b1afe on_off
+      state: 'on'
+    light.dimmer_2_current_value:
+      brightness: 255
+      friendly_name: Dimmer 2
+      supported_features: 33
+      state: 'on'
+    light.ruban:
+      min_mireds: 125
+      max_mireds: 666
+      effect_list:
+      - random
+      brightness: 148
+      hs_color:
+      - 4.154
+      - 50.98
+      rgb_color:
+      - 255
+      - 134
+      - 125
+      xy_color:
+      - 0.522
+      - 0.322
+      effect: none
+      friendly_name: Ruban
+      supported_features: 63
+      state: 'on'
+    light.smart_switch_6:
+      brightness: 129
+      hs_color:
+      - 300
+      - 26.667
+      rgb_color:
+      - 255
+      - 186
+      - 255
+      xy_color:
+      - 0.349
+      - 0.255
+      friendly_name: Smart Switch 6
+      supported_features: 49
+      state: 'on'
+    light.smart_switch_6_2:
+      brightness: 134
+      hs_color:
+      - 300
+      - 26.275
+      rgb_color:
+      - 255
+      - 187
+      - 255
+      xy_color:
+      - 0.349
+      - 0.256
+      friendly_name: Smart Switch 6
+      supported_features: 49
+      state: 'on'
+    remote.harmony_hub:
+      activity_starting:
+      current_activity: PowerOff
+      activity_list:
+      - Regarder TV
+      - AppleTV
+      - Regarder Apple TV
+      devices_list:
+      - Orange
+      - Apple TV
+      - Onkyo
+      - Sony TV
+      last_activity: Regarder TV
+      friendly_name: Harmony Hub
+      supported_features: 0
+      state: 'off'
+    light.hue_go_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue go
+      supported_features: 63
+      state: 'off'
+    light.hue_iris_1:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue iris 1
+      supported_features: 61
+      state: 'off'
+    light.hue_iris_2:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue iris 2
+      supported_features: 61
+      state: 'off'
+    light.hue_play_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue play 1
+      supported_features: 63
+      state: 'off'
+    light.hue_play_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue play 2
+      supported_features: 63
+      state: 'off'
+    light.hue_play_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue play 3
+      supported_features: 63
+      state: 'off'
+    light.hue_play_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue play 4
+      supported_features: 63
+      state: 'off'
+  icon: mdi:weather-night
