@@ -25,17 +25,16 @@ sensor:
 
 automation:
   #
-  # Eteints les lumières du bureau si la XBOX est éteinte
-  #
-  - alias: Xbox - Eteindre lumières
+  # Allumer les lumières si la XBOX est allumée
+  # (ici car les automations homekit ne gèrent pas le statut unavailable
+  # provoquant des allumages intempestifs)
+  - alias: Xbox - Allumer lumières
     trigger:
       - platform: state
         entity_id: media_player.xboxone
-        from: 'on'
-        to: 'off'
+        from: 'off'
+        to: 'on'
     action:
-      - service: light.turn_off
-        data:
-          entity_id:
-            - light.hue_play_3
-            - light.hue_play_4
+      - service: scene.turn_on
+        target:
+          entity_id: scene.xbox_allumer
