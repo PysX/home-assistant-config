@@ -33,7 +33,7 @@ automation:
           {% else %}
             switch.turn_off
           {% endif %}
-        data:
+        target:
           entity_id:
             - switch.schedule_noel_semaine_sapin
             - switch.schedule_noel_weekend_sapin
