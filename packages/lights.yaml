@@ -20,7 +20,7 @@ automation:
         to: 'on'
     action:
       - service: switch.turn_on
-        data:
+        target:
           entity_id:
             - switch.metered_wall_plug_switch_current_value_2
 
