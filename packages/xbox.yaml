@@ -29,11 +29,20 @@ automation:
   # (ici car les automations homekit ne gèrent pas le statut unavailable
   # provoquant des allumages intempestifs)
   - alias: Xbox - Allumer lumières
+    mode: single
     trigger:
       - platform: state
         entity_id: media_player.xboxone
         from: 'off'
         to: 'on'
+    # Permet d'éviter l'allumage aux mises à jour la nuit de la xbox
+    condition:
+      - condition: time
+        after: '08:00'
+        before: '23:00'
+      - condition: state
+        entity_id: input_boolean.mode_home
+        state: 'on'
     action:
       - service: scene.turn_on
         target:
