@@ -29,6 +29,7 @@ automation:
   # (ici car les automations homekit ne gèrent pas le statut unavailable
   # provoquant des allumages intempestifs)
   - alias: Xbox - Allumer lumières
+    id: xbox_allumer_lumieres
     mode: single
     trigger:
       - platform: state

@@ -25,6 +25,7 @@ sensor:
 automation:
   # Il faut redemarrer Nginx pour appliqer le nouveau certificat
   - alias: "SSL - Timestamp certificat expire"
+    id: ssl_certificat_expire
     trigger:
       - platform: time
         at: '03:00:00'

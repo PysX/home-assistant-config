@@ -40,6 +40,7 @@ automation:
   # If already out (checked by input boolean), no more notification
   #
   - alias: Poubelles - Notifications
+    id: poubelles_notifications
     trigger:
       - platform: time
         at: '18:00:00'
@@ -66,6 +67,7 @@ automation:
   # Deactivate alarm from iOS notification
   #
   - alias: Poubelles - Désactiver rappel
+    id: poubelles_desactiver_rappel
     trigger:
       platform: event
       event_type: ios.notification_action_fired
@@ -78,6 +80,7 @@ automation:
   # Activate alarm from iOS notification (after being disabled)
   #
   - alias: Poubelles - Activer rappel
+    id: poubelles_activer_rappel
     trigger:
       platform: state
       entity_id: sensor.poubelles

@@ -23,6 +23,7 @@ automation:
   # Permet d'activer/desactiver les automations de Noël
   #
   - alias: Noel - Activer/Desactiver Planifications
+    id: noel_toogle_plannifications
     trigger:
       - platform: state
         entity_id: input_boolean.christmas_lights_run

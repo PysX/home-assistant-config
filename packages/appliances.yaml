@@ -47,6 +47,7 @@ automation:
   # Send notification when charge start
   #
   - alias: Appliance - Machine à laver terminée
+    id: appliance_machine_laver_terminee
     trigger:
       - platform: state
         entity_id: binary_sensor.washing_machine
@@ -61,6 +62,7 @@ automation:
   # Send notification when charge start
   #
   - alias: Appliance - Sèche linge terminé
+    id: appliance_seche_linge_termine
     trigger:
       - platform: state
         entity_id: binary_sensor.dryer_machine

@@ -13,6 +13,7 @@ automation:
   # Permet d'allumer les leds TV
   #
   - alias: TV - Allumer leds TV
+    id: tv_allumer_leds
     trigger:
       - platform: state
         entity_id: media_player.salon_tv

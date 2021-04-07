@@ -86,6 +86,7 @@ automation:
   # Updates modes on change
   #
   - alias: HA Mode set
+    id: mode_set
     trigger:
       platform: state
       entity_id: input_boolean.mode_home,

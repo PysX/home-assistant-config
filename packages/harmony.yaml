@@ -95,6 +95,7 @@ automation:
   # Mets à jour l'input select
   #
   - alias: Harmony - Update Input Select
+    id: harmony_update_select
     mode: single
     trigger:
       platform: state
