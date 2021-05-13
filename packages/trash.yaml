@@ -5,20 +5,6 @@
 ###############################################################################
 
 ###############################################################################
-#                               iOS
-###############################################################################
-ios:
-  push:
-    categories:
-      - name: "Alarme poubelles"
-        identifier: 'alarm_trash'
-        actions:
-          - identifier: 'SILENCE_TRASH_ALARM'
-            title: "C'est fait !"
-            destructive: false
-            authenticationRequired: false
-
-###############################################################################
 #                               Boolean
 ###############################################################################
 input_boolean:
@@ -57,12 +43,13 @@ automation:
           value_template: '{{ state_attr("sensor.poubelles","days") == 1 }}'
     action:
       - service: notify.mobile_app_iphone_de_cedric
-        data_template:
+        data:
           title: "Sortir les poubelles !"
           message: "Ramassage des poubelles demain."
           data:
-            push:
-              category: "alarm_trash"
+            actions:
+              - action: 'SILENCE_TRASH_ALARM'
+                title: "C'est fait !"
   #
   # Deactivate alarm from iOS notification
   #
@@ -70,9 +57,9 @@ automation:
     id: poubelles_desactiver_rappel
     trigger:
       platform: event
-      event_type: ios.notification_action_fired
+      event_type: mobile_app_notification_action
       event_data:
-        actionName: SILENCE_TRASH_ALARM
+        action: 'SILENCE_TRASH_ALARM'
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.notify_poubelles
