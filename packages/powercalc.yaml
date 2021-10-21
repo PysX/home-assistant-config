@@ -1,0 +1,49 @@
+###############################################################################
+#   @package        :   Powercalc
+#   @description    :   Simulate power consumed
+#   @url            : 
+###############################################################################
+
+######################################################################################
+# Sensors
+######################################################################################
+sensor:
+  - platform: powercalc
+    entity_id: light.hue_go_1
+    linear:
+      min_power: 0
+      max_power: 6
+    standby_power: 0.2
+  # hue play 1 et 2 (donc * 2)
+  - platform: powercalc
+    entity_id: light.hue_play_1
+    linear:
+      min_power: 0
+      max_power: 12
+    standby_power: 0.4
+  # hue play 3 et 4 (donc * 2)
+  - platform: powercalc
+    entity_id: light.hue_play_3
+    linear:
+      min_power: 0
+      max_power: 12
+    standby_power: 0.4
+  # hue iris 1 et 2 (donc * 2)
+  - platform: powercalc
+    entity_id: light.hue_iris_1
+    linear:
+      min_power: 0
+      max_power: 12
+    standby_power: 0.4
+  - platform: powercalc
+    entity_id: light.chevet_droite
+    linear:
+      min_power: 0
+      max_power: 4
+    standby_power: 0.2
+  - platform: powercalc
+    entity_id: light.chevet_gauche
+    linear:
+      min_power: 0
+      max_power: 4
+    standby_power: 0.2
