@@ -1,0 +1,71 @@
+###############################################################################
+#   @package        :   Energy
+#   @description    :   Follow energy
+#   @url            : 
+###############################################################################
+
+######################################################################################
+# Template sensors
+######################################################################################
+
+#########################
+# Sum all consumed energy
+#########################
+template:
+  - sensor:
+      - name: "Total Energy"
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        state: >
+          {{ (states('sensor.dimmer_2_electric_consumed_kwh') | float +
+            states('sensor.metered_wall_plug_switch_electric_consumed_kwh') | float +
+            states('sensor.metered_wall_plug_switch_electric_consumed_kwh_2') | float +
+            states('sensor.metered_wall_plug_switch_electric_consumed_kwh_3') | float +
+            states('sensor.metered_wall_plug_switch_electric_consumed_kwh_4') | float +
+            states('sensor.smart_switch_6_electric_consumed_kwh') | float +
+            states('sensor.smart_switch_6_electric_consumed_kwh_2') | float +
+            states('sensor.hue_go_energy') | float +
+            states('sensor.hue_play_salon_energy') | float +
+            states('sensor.hue_play_bureau_energy') | float +
+            states('sensor.hue_iris_energy') | float +
+            states('sensor.chevet_droite_energy') | float +
+            states('sensor.chevet_gauche_energy') | float
+           ) | round(2) }}
+        #availability: >
+        #  {{ states('sensor.powcasath_energy_total') != 'unavailable' and states('sensor.powapart_energy_total_2') != 'unavailable' }}
+
+#########################
+# Device energy
+#########################
+sensor:
+  - platform: integration
+    source: sensor.hue_go_power
+    name: Hue go Energy
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.hue_play_1_power
+    name: Hue play salon Energy
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.hue_play_3_power
+    name: Hue play bureau Energy
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.hue_iris_1_power
+    name: Hue iris Energy
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.chevet_droite_power
+    name: Chevet droite Energy
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.chevet_gauche_power
+    name: Chevet gauche Energy
+    unit_prefix: k
+    round: 2
