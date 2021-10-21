@@ -6,7 +6,7 @@
 homeassistant:
   customize:
     # customize pour homebridge
-    media_player.xboxone:
+    media_player.xboxone_x:
       friendly_name: XboxOne
       device_class: tv
 
@@ -33,7 +33,7 @@ automation:
     mode: single
     trigger:
       - platform: state
-        entity_id: media_player.xboxone
+        entity_id: media_player.xboxone_x
         from: 'off'
         to: 'on'
     # Permet d'éviter l'allumage aux mises à jour la nuit de la xbox
