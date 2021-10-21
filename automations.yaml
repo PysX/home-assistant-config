@@ -1,1 +1,85 @@
-[]
+- id: '1632684359102'
+  alias: Arlo - Bureau - Alerte nuit
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.aarlo_sound_arlobabychambre
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.mobile_app_iphone_de_cedric
+    # https://companion.home-assistant.io/docs/notifications/critical-notifications/
+    # https://companion.home-assistant.io/docs/notifications/notifications-basic#interruption-level
+    data:
+      message: '👶🏻 Alerte bébé '
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 0.3
+          interruption-level: critical
+  mode: single
+- id: '1634820820101'
+  alias: ZHA - IKEA Remote - Bureau
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e1524_e1810.yaml
+    input:
+      integration: ZHA
+      controller_device: 1e0f52eb8b35ca5138713aa8e073350b
+      helper_last_controller_event: input_text.ikea_remote_last_event_bureau
+      button_up_long_loop: true
+      action_button_up_long:
+      - service: light.turn_on
+        target:
+          device_id: 7ca83e72d75d4366abf666b99ccb0405
+        data:
+          brightness_step_pct: 3
+      action_button_up_short:
+      - service: light.turn_on
+        target:
+          device_id: 7ca83e72d75d4366abf666b99ccb0405
+        data:
+          brightness_step_pct: 3
+      button_up_long_max_loop_repeats: 1000
+      button_down_long_loop: true
+      button_down_long_max_loop_repeats: 1000
+      action_button_down_short:
+      - service: light.turn_on
+        target:
+          device_id: 7ca83e72d75d4366abf666b99ccb0405
+        data:
+          brightness_step_pct: -3
+      action_button_down_long:
+      - service: light.turn_on
+        target:
+          device_id: 7ca83e72d75d4366abf666b99ccb0405
+        data:
+          brightness_step_pct: -3
+      action_button_center_short:
+      - service: light.turn_on
+        target:
+          device_id:
+          - 7ca83e72d75d4366abf666b99ccb0405
+          - f54e4836114f11eb94ebc1d1fdff2d6c
+          - fb401804114f11eb8ea983eb3f8ce2fd
+          - 934ea2ead7539073d847d8de6bd8722f
+        data:
+          brightness_pct: 1
+      button_center_double_press: true
+      action_button_center_double:
+      - service: light.turn_off
+        target:
+          area_id: 60dac2477ae84e129616a6bd60986247
+      button_left_double_press: true
+      action_button_left_short:
+      - service: media_player.media_play_pause
+        target:
+          entity_id: media_player.arlobabychambre
+      button_down_double_press: true
+      action_button_down_double:
+      - service: light.turn_off
+        target:
+          device_id: 7ca83e72d75d4366abf666b99ccb0405
