@@ -1,0 +1,16 @@
+###############################################################################
+#   @package        :   Ikea devices options
+#   @description    :   Modes and automations
+#   @url            :
+###############################################################################
+
+###############################################################################
+#                               Input Text
+###############################################################################
+#
+# For Ikea Remote blueprint 
+# https://epmatt.github.io/awesome-ha-blueprints/docs/blueprints/controllers/ikea_e1524_e1810/
+#
+input_text:
+  ikea_remote_last_event_bureau:
+    name: Ikea remote last event bureau
