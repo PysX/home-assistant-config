@@ -3,20 +3,22 @@
 #   @description    :   Supervise SSL et reboot reverse nginx
 #   @url            :   https://github.com/home-assistant/hassio-addons/issues/1445
 ###############################################################################
-sensor:
-  - platform: template
-    sensors:
-      cert_expiry:
-        friendly_name: 'Cert Expiry'
-        value_template: >
-          {{ ((as_timestamp(states('sensor.cert_expiry_timestamp')) - as_timestamp(states.sensor.date.last_updated)) / 86400) | int }}
-        icon_template: >-
+template:
+  - sensor:
+      - name: "Cert Expiry"
+        unit_of_measurement: "days"
+        state: >
+          {% if (states('sensor.cert_expiry_timestamp') != "unavailable") %}
+            {{ ((as_timestamp(states('sensor.cert_expiry_timestamp')) - as_timestamp(states.sensor.date.last_updated)) / 86400) | int }}
+          {% endif %} 
+        icon: >-
           {% if states('sensor.cert_expiry') | int > 0 %}
             mdi:certificate
           {% else %}
             mdi:certificate-outline
           {% endif %}
-        unit_of_measurement: 'days'
+        availability: >
+          {{ states('sensor.cert_expiry_timestamp') != "unavailable" }}
 
 ###############################################################################
 #                               Automations
