@@ -133,7 +133,7 @@
     switch.innr_sp_220_2:
       friendly_name: innr SP 220 9c1b1afe on_off
       state: 'on'
-    light.dimmer_2_current_value:
+    light.dimmer_2:
       brightness: 255
       friendly_name: Dimmer 2
       supported_features: 33
