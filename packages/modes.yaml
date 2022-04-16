@@ -31,17 +31,17 @@ sensor:
   - platform: template
     sensors:
       mode:
-        friendly_name: 'HA Mode'
+        friendly_name: "HA Mode"
         value_template: >-
-         {% if is_state('input_boolean.mode_home', 'on') %}
-            home
-         {% elif is_state('input_boolean.mode_away', 'on') %}
-            away
-         {% elif is_state('input_boolean.mode_night', 'on') %}
-           night
-         {% elif is_state('input_boolean.mode_holiday', 'on') %}
-           holiday
-         {% endif %}
+          {% if is_state('input_boolean.mode_home', 'on') %}
+             home
+          {% elif is_state('input_boolean.mode_away', 'on') %}
+             away
+          {% elif is_state('input_boolean.mode_night', 'on') %}
+            night
+          {% elif is_state('input_boolean.mode_holiday', 'on') %}
+            holiday
+          {% endif %}
         icon_template: >-
           {% if is_state('input_boolean.mode_home', 'on') %}
              mdi:home-account
@@ -76,27 +76,3 @@ binary_sensor:
           {% elif is_state('sensor.mode', 'holiday') %}
             mdi:airplane-takeoff
           {% endif %}
-
-###############################################################################
-#                               Automations
-###############################################################################
-
-automation:
-  #
-  # Updates modes on change
-  #
-  - alias: HA Mode set
-    id: mode_set
-    trigger:
-      platform: state
-      entity_id: input_boolean.mode_home,
-                input_boolean.mode_away,
-                input_boolean.mode_holiday,
-                input_boolean.mode_night
-      to: 'on'
-    action:
-      - service: input_boolean.turn_off
-        data_template:
-          entity_id: >
-            {% set booleans = [ 'input_boolean.mode_home', 'input_boolean.mode_away', 'input_boolean.mode_holiday', 'input_boolean.mode_night' ] | reject('equalto', trigger.entity_id) %}
-            {{ booleans | list | join(', ') }}

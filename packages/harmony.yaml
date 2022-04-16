@@ -82,36 +82,3 @@ media_player:
             {% else %}
               Regarder TV
             {% endif %}
-
-###############################################################################
-#                               Automations
-###############################################################################
-#
-# Demarre une activité au changement du select
-# Code Activité disponible dans le fichier harmonyxx.conf
-#
-automation:
-  #
-  # Mets à jour l'input select
-  #
-  - alias: Harmony - Update Input Select
-    id: harmony_update_select
-    mode: single
-    trigger:
-      platform: state
-      entity_id: remote.harmony_hub
-    condition: []
-    action:
-      service: input_select.select_option
-      data_template:
-        entity_id: input_select.salon_tv_activity
-        option: >-
-          {% if trigger.to_state.attributes.current_activity ==  'Regarder TV' %}
-          Orange
-          {% elif trigger.to_state.attributes.current_activity ==  'Regarder Apple TV' %}
-          Apple TV
-          {% elif trigger.to_state.attributes.current_activity ==  'AppleTV' %}
-          AirPlay
-          {% else %}
-          Power Off
-          {% endif %}

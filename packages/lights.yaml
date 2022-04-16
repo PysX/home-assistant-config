@@ -7,33 +7,20 @@
 ###############################################################################
 #                               Automations
 ###############################################################################
-
-automation:
-  #
-  # Permet d'allumer les leds TV
-  #
-  - alias: TV - Allumer leds TV
-    id: tv_allumer_leds
-    trigger:
-      - platform: state
-        entity_id: media_player.salon_tv
-        from: 'off'
-        to: 'on'
-    action:
-      - service: switch.turn_on
-        target:
-          entity_id:
-            - switch.metered_wall_plug_switch_current_value_2
-
-#
-# Controle lumière Bureau en télétravail
-# (Non terminé)
-#
-#  - alias: Bureau - Allumer ordinateur
-#    trigger:
-#
-#    action:
-#      - service: hue.hue_activate_scene
-#        data:
-#          group_name: "Bureau"
-#          scene_name: "Stimulation"
+sensor:
+  - platform: template
+    sensors:
+      dark_outside:
+        friendly_name: Dark Outside
+        value_template: >
+          {% if (state_attr('sun.sun', 'elevation') | int < -2) %}
+            true
+          {% elif (state_attr('sun.sun', 'elevation') | int < 1) and (states('sensor.maison_cloud_cover') | int > 80) %}
+            true
+          {% elif (state_attr('sun.sun', 'elevation') | int < 2) and (states('sensor.maison_cloud_cover') | int > 85) %}
+            true
+          {% elif (state_attr('sun.sun', 'elevation') | int < 3) and (states('sensor.maison_cloud_cover') | int > 95) %}
+            true
+          {% else %}
+            false
+          {% endif %}

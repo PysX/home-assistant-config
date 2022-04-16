@@ -14,37 +14,7 @@ sensor:
   - platform: history_stats
     name: In game last 7 days
     entity_id: binary_sensor.pwyk_in_game
-    state: 'on'
-    end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    state: "on"
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
       days: 7
-
-###############################################################################
-#                               Automations
-###############################################################################
-
-automation:
-  #
-  # Allumer les lumières si la XBOX est allumée
-  # (ici car les automations homekit ne gèrent pas le statut unavailable
-  # provoquant des allumages intempestifs)
-  - alias: Xbox - Allumer lumières
-    id: xbox_allumer_lumieres
-    mode: single
-    trigger:
-      - platform: state
-        entity_id: media_player.xboxone_x
-        from: 'off'
-        to: 'on'
-    # Permet d'éviter l'allumage aux mises à jour la nuit de la xbox
-    condition:
-      - condition: time
-        after: '08:00'
-        before: '23:00'
-      - condition: state
-        entity_id: input_boolean.mode_home
-        state: 'on'
-    action:
-      - service: scene.turn_on
-        target:
-          entity_id: scene.xbox_allumer

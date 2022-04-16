@@ -1,29 +1,27 @@
-- id: '1632684359102'
+- id: "1632684359102"
   alias: Arlo - Bureau - Alerte nuit
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.aarlo_sound_arlobabychambre
-    from: 'off'
-    to: 'on'
+    - platform: state
+      entity_id: binary_sensor.aarlo_sound_arlobabychambre
+      from: "off"
+      to: "on"
   condition: []
   action:
-  - service: notify.mobile_app_iphone_de_cedric
-    # https://companion.home-assistant.io/docs/notifications/critical-notifications/
-    # https://companion.home-assistant.io/docs/notifications/notifications-basic#interruption-level
-    data:
-      message: '👶🏻 Alerte bébé '
+    - service: notify.mobile_app_iphone_de_cedric
       data:
-        push:
-          sound:
-            name: default
-            critical: 1
-            volume: 0.3
-          interruption-level: critical
+        message: "👶🏻 Alerte bébé "
+        data:
+          push:
+            sound:
+              name: default
+              critical: 1
+              volume: 0.3
+            interruption-level: critical
   mode: single
-- id: '1634820820101'
+- id: "1634820820101"
   alias: ZHA - IKEA Remote - Bureau
-  description: ''
+  description: ""
   use_blueprint:
     path: EPMatt/ikea_e1524_e1810.yaml
     input:
@@ -32,54 +30,488 @@
       helper_last_controller_event: input_text.ikea_remote_last_event_bureau
       button_up_long_loop: true
       action_button_up_long:
-      - service: light.turn_on
-        target:
-          device_id: 7ca83e72d75d4366abf666b99ccb0405
-        data:
-          brightness_step_pct: 3
+        - service: light.turn_on
+          target:
+            device_id: 7ca83e72d75d4366abf666b99ccb0405
+          data:
+            brightness_step_pct: 10
       action_button_up_short:
-      - service: light.turn_on
-        target:
-          device_id: 7ca83e72d75d4366abf666b99ccb0405
-        data:
-          brightness_step_pct: 3
+        - service: light.turn_on
+          target:
+            device_id: 7ca83e72d75d4366abf666b99ccb0405
+          data:
+            brightness_step_pct: 10
       button_up_long_max_loop_repeats: 1000
       button_down_long_loop: true
       button_down_long_max_loop_repeats: 1000
       action_button_down_short:
-      - service: light.turn_on
-        target:
-          device_id: 7ca83e72d75d4366abf666b99ccb0405
-        data:
-          brightness_step_pct: -3
+        - service: light.turn_on
+          target:
+            device_id: 7ca83e72d75d4366abf666b99ccb0405
+          data:
+            brightness_step_pct: -10
       action_button_down_long:
-      - service: light.turn_on
-        target:
-          device_id: 7ca83e72d75d4366abf666b99ccb0405
-        data:
-          brightness_step_pct: -3
+        - service: light.turn_on
+          target:
+            device_id: 7ca83e72d75d4366abf666b99ccb0405
+          data:
+            brightness_step_pct: -10
       action_button_center_short:
-      - service: light.turn_on
-        target:
-          device_id:
-          - 7ca83e72d75d4366abf666b99ccb0405
-          - f54e4836114f11eb94ebc1d1fdff2d6c
-          - fb401804114f11eb8ea983eb3f8ce2fd
-          - 934ea2ead7539073d847d8de6bd8722f
-        data:
-          brightness_pct: 1
+        - service: light.turn_on
+          target:
+            device_id:
+              - 7ca83e72d75d4366abf666b99ccb0405
+              - f54e4836114f11eb94ebc1d1fdff2d6c
+              - fb401804114f11eb8ea983eb3f8ce2fd
+              - 934ea2ead7539073d847d8de6bd8722f
+          data:
+            brightness_pct: 1
       button_center_double_press: true
       action_button_center_double:
-      - service: light.turn_off
-        target:
-          area_id: 60dac2477ae84e129616a6bd60986247
+        - service: light.turn_off
+          target:
+            area_id: 60dac2477ae84e129616a6bd60986247
+          data: {}
       button_left_double_press: true
       action_button_left_short:
-      - service: media_player.media_play_pause
-        target:
-          entity_id: media_player.arlobabychambre
+        - service: media_player.media_play_pause
+          target:
+            entity_id: media_player.arlobabychambre
+          data: {}
       button_down_double_press: true
       action_button_down_double:
-      - service: light.turn_off
-        target:
-          device_id: 7ca83e72d75d4366abf666b99ccb0405
+        - service: light.turn_off
+          target:
+            device_id: 7ca83e72d75d4366abf666b99ccb0405
+          data: {}
+      action_button_left_double:
+        - service: tts.google_translate_say
+          data:
+            entity_id: media_player.bureau
+            message: Good night !
+      action_button_right_short:
+        - service: hue.activate_scene
+          data: {}
+          target:
+            entity_id: scene.chambre_lecture
+      action_button_right_double:
+        - service: hue.activate_scene
+          data: {}
+          target:
+            entity_id: scene.bureau_concentration_2
+      action_button_right_long:
+        - service: hue.activate_scene
+          data: {}
+          target:
+            entity_id: scene.bureau_coucher_sur_la_savane
+- id: "1649443754137"
+  alias: Watchdog - Lights Night
+  description: ""
+  trigger:
+    - platform: device
+      type: turned_on
+      device_id: 934ea2ead7539073d847d8de6bd8722f
+      entity_id: light.porte
+      domain: light
+  condition:
+    - condition: state
+      entity_id: input_boolean.mode_night
+      state: "on"
+  action:
+    - service: light.turn_off
+      data: {}
+      target:
+        device_id: 934ea2ead7539073d847d8de6bd8722f
+  mode: single
+- id: aarlo_snapshot
+  alias: Arlo - Snapshot toutes les 2h
+  trigger:
+    - platform: time_pattern
+      hours: /2
+  condition:
+    - condition: time
+      after: 07:30:00
+      before: "23:00:00"
+  action:
+    - service: aarlo.camera_request_snapshot
+      data:
+        entity_id: camera.aarlo_arlobaby
+- id: aarlo_arm
+  alias: Arlo - Arme la nuit et absent
+  trigger:
+    platform: state
+    entity_id: input_boolean.mode_away, input_boolean.mode_holiday, input_boolean.mode_night
+    to: "on"
+  action:
+    - service: alarm_control_panel.alarm_arm_away
+      data:
+        entity_id: alarm_control_panel.aarlo_arlobaby
+- id: aarlo_disarm
+  alias: Arlo - Désarme quand présent
+  trigger:
+    platform: state
+    entity_id: input_boolean.mode_home
+    to: "on"
+  action:
+    - service: alarm_control_panel.alarm_disarm
+      data:
+        entity_id: alarm_control_panel.aarlo_arlobaby
+- alias: Zoe - Notification demarrage charge
+  id: zoe_notification_demarrage_charge
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.zoe_charging
+      from: "off"
+      to: "on"
+  action:
+    - service: notify.mobile_app_iphone_de_cedric
+      data_template:
+        title: Zoe début de charge
+        message:
+          🚗 Charge commencée à {{ states.sensor.zoe_battery_level.state_with_unit
+          }} le {{ as_timestamp(state_attr('sensor.zoe_battery_level', 'last_update'))
+          | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}.
+- id: zoe_notification_arret_charge
+  alias: Zoe - Notification arrêt charge
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.zoe_charging
+      from: "on"
+      to: "off"
+  action:
+    - service: notify.mobile_app_iphone_de_cedric
+      data_template:
+        title: Zoe fin de charge
+        message:
+          🚗 Charge terminée à {{ states.sensor.zoe_battery_level.state_with_unit
+          }} le {{ as_timestamp(state_attr('sensor.zoe_battery_level', 'last_update'))
+          | timestamp_custom('%d/%m/%Y à %H:%M:%S') }}.
+
+# Il faut redemarrer Nginx pour appliqer le nouveau certificat
+- alias: "SSL - Timestamp certificat expire"
+  id: ssl_certificat_expire
+  trigger:
+    - platform: time
+      at: "03:00:00"
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.cert_expiry
+      below: 10
+  action:
+    - service: hassio.addon_restart
+      data:
+        addon: core_nginx_proxy
+    # - delay: 00:05:00
+    # - service: homeassistant.restart
+    - service: persistent_notification.create
+      data:
+        message: "NGinx proxy redemarré pour activer le nouveau certificat."
+
+- alias: Xbox - Allumer lumières
+  id: xbox_allumer_lumieres
+  mode: single
+  trigger:
+    - platform: state
+      entity_id: media_player.xboxone_x
+      from: "off"
+      to: "on"
+  condition:
+    - condition: time
+      after: 08:00
+      before: "23:00"
+    - condition: state
+      entity_id: input_boolean.mode_home
+      state: "on"
+  action:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.xbox_allumer
+- alias: HA Mode set
+  id: mode_set
+  trigger:
+    platform: state
+    entity_id:
+      input_boolean.mode_home, input_boolean.mode_away, input_boolean.mode_holiday,
+      input_boolean.mode_night
+    to: "on"
+  action:
+    - service: input_boolean.turn_off
+      data_template:
+        entity_id:
+          "{% set booleans = [ 'input_boolean.mode_home', 'input_boolean.mode_away',
+          'input_boolean.mode_holiday', 'input_boolean.mode_night' ] | reject('equalto',
+          trigger.entity_id) %} {{ booleans | list | join(', ') }}
+
+          "
+- id: poubelles_notifications
+  alias: Poubelles - Notifications
+  trigger:
+    - platform: time
+      at: "18:00:00"
+    - platform: time
+      at: "19:00:00"
+    - platform: time
+      at: "20:00:00"
+  condition:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.notify_poubelles
+          state: "on"
+        - condition: state
+          entity_id: sensor.poubelles
+          attribute: days
+          state: "1"
+  action:
+    - service: notify.mobile_app_iphone_de_cedric
+      data:
+        title: Sortir les poubelles !
+        message: Ramassage des poubelles demain.
+        data:
+          actions:
+            - action: SILENCE_TRASH_ALARM
+              title: C'est fait !
+- alias: Poubelles - Désactiver rappel
+  id: poubelles_desactiver_rappel
+  trigger:
+    platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: SILENCE_TRASH_ALARM
+  action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.notify_poubelles
+- id: poubelles_activer_rappel
+  alias: Poubelles - Activer rappel
+  trigger:
+    - platform: state
+      entity_id: sensor.poubelles
+      attribute: days
+      from: "0"
+  action:
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.notify_poubelles
+#
+# Send notification when charge start
+#
+- alias: Appliance - Machine à laver terminée
+  id: appliance_machine_laver_terminee
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.washing_machine
+      from: "on"
+      to: "off"
+  action:
+    - service: notify.mobile_app_iphone_de_cedric
+      data_template:
+        title: "Machine à laver terminée !"
+        message: "La machine à laver a terminé son cycle."
+#
+# Send notification when charge start
+#
+- alias: Appliance - Sèche linge terminé
+  id: appliance_seche_linge_termine
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.dryer_machine
+      from: "on"
+      to: "off"
+  action:
+    - service: notify.mobile_app_iphone_de_cedric
+      data_template:
+        title: "Sèche linge terminé !"
+        message: "Le sèche linge a terminé son cycle."
+- id: "1613323336828"
+  alias: ZHA - Aqara Wireless Mini Switch
+  description: ""
+  use_blueprint:
+    path: thedudeabides/zha-aqara-wireless-mini-switch-model-lumi-sensor-swit.yaml
+    input:
+      aqara_mini_switch: cb23e81a177749a253ed6851c1110046
+      button_single_press:
+        - service: input_boolean.turn_on
+          data: {}
+          entity_id: input_boolean.button_short_press
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - service: input_boolean.turn_off
+          data: {}
+          entity_id: input_boolean.button_short_press
+      button_double_press:
+        - service: input_boolean.turn_on
+          data: {}
+          entity_id: input_boolean.button_double_press
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - service: input_boolean.turn_off
+          data: {}
+          entity_id: input_boolean.button_double_press
+      button_long_press:
+        - service: input_boolean.turn_on
+          data: {}
+          entity_id: input_boolean.button_long_press
+      button_released:
+        - service: input_boolean.turn_off
+          data: {}
+          entity_id: input_boolean.button_long_press
+#
+# Permet d'activer/desactiver les automations de Noël
+#
+- alias: Noel - Activer/Desactiver Planifications
+  id: noel_toogle_plannifications
+  trigger:
+    - platform: state
+      entity_id: input_boolean.christmas_lights_run
+  action:
+    - service: >
+        {% if states('input_boolean.christmas_lights_run') == 'on' %}
+          switch.turn_on
+        {% else %}
+          switch.turn_off
+        {% endif %}
+      target:
+        entity_id:
+          - switch.schedule_noel_semaine_sapin
+          - switch.schedule_noel_weekend_sapin
+#
+# Mets à jour l'input select
+#
+- alias: Harmony - Update Input Select
+  id: harmony_update_select
+  mode: single
+  trigger:
+    platform: state
+    entity_id: remote.harmony_hub
+  condition: []
+  action:
+    service: input_select.select_option
+    data_template:
+      entity_id: input_select.salon_tv_activity
+      option: >-
+        {% if trigger.to_state.attributes.current_activity ==  'Regarder TV' %}
+        Orange
+        {% elif trigger.to_state.attributes.current_activity ==  'Regarder Apple TV' %}
+        Apple TV
+        {% elif trigger.to_state.attributes.current_activity ==  'AppleTV' %}
+        AirPlay
+        {% else %}
+        Power Off
+        {% endif %}
+- alias: TV - Allumer leds TV
+  id: tv_allumer_leds
+  trigger:
+    - platform: state
+      entity_id: media_player.salon_tv
+      from: "off"
+      to: "on"
+  action:
+    - service: switch.turn_on
+      target:
+        entity_id:
+          - switch.metered_wall_plug_switch_2
+- alias: LightDance
+  trigger:
+    platform: time_pattern
+    minutes: "/5"
+    seconds: 00
+  action:
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.hue_iris_1
+          - light.hue_play_1
+      data:
+        transition: 10
+        rgb_color:
+          - 255
+          - 70
+          - 0
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.hue_iris_2
+          - light.hue_play_2
+          - light.hue_go_1
+      data:
+        transition: 10
+        rgb_color:
+          - 192
+          - 5
+          - 255
+    - delay: "00:02:30"
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.hue_iris_2
+          - light.hue_play_2
+          - light.hue_go_1
+      data:
+        transition: 10
+        rgb_color:
+          - 255
+          - 70
+          - 0
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.hue_iris_1
+          - light.hue_play_1
+      data:
+        transition: 10
+        rgb_color:
+          - 192
+          - 5
+          - 255
+- alias: LightDanceChambre
+  trigger:
+    platform: time_pattern
+    minutes: "/5"
+    seconds: 00
+  action:
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.hue_color_lamp_2
+      data:
+        transition: 10
+        rgb_color:
+          - 255
+          - 70
+          - 0
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.osram_ruban
+      data:
+        transition: 10
+        rgb_color:
+          - 192
+          - 5
+          - 255
+    - delay: "00:02:30"
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.osram_ruban
+      data:
+        transition: 10
+        rgb_color:
+          - 255
+          - 70
+          - 0
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.hue_color_lamp_2
+      data:
+        transition: 10
+        rgb_color:
+          - 192
+          - 5
+          - 255

@@ -13,7 +13,7 @@ aarlo:
   user_agent: linux
   stream_snapshot: true
   # mode_api: v2
-  hide_deprecated_services: true
+  #hide_deprecated_services: true
   # verbose_debug: True
 
 #
@@ -83,54 +83,3 @@ binary_sensor:
       - ding
       - cry
       # - connectivity
-
-###############################################################################
-#                               Automations
-###############################################################################
-
-automation:
-  #
-  # snapshot every 30 min
-  #
-  - id: aarlo_snapshot
-    alias: Arlo - Snapshot toutes les 30 minutes
-    trigger:
-      platform: time_pattern
-      hours: "/2"
-    condition:
-      - condition: time
-        after: "07:30:00"
-        before: "23:00:00"
-    action:
-      - service: aarlo.camera_request_snapshot
-        data:
-          entity_id: camera.aarlo_arlobaby
-  #
-  # Arm alarm
-  #
-  - id: aarlo_arm
-    alias: Arlo - Arme la nuit et absent
-    trigger:
-      platform: state
-      entity_id: input_boolean.mode_away,
-                input_boolean.mode_holiday,
-                input_boolean.mode_night
-      to: 'on'
-    action:
-      - service: alarm_control_panel.alarm_arm_away
-        data:
-          entity_id: alarm_control_panel.aarlo_arlobaby
-  #
-  # Disarm alarm
-  #
-  - id: aarlo_disarm
-    alias: Arlo - Désarme quand présent
-    trigger:
-      platform: state
-      entity_id: input_boolean.mode_home
-      to: 'on'
-    action:
-      - service: alarm_control_panel.alarm_disarm
-        data:
-          entity_id: alarm_control_panel.aarlo_arlobaby
-
