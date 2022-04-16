@@ -7,12 +7,11 @@
 
 recorder:
   # purge_keep_days: 7  # par défaut 10
-  db_url: !secret postgres_url
+  #db_url: !secret postgres_url
   exclude:
     domains:
       - automation
       - updater
-      - device_tracker
       - group
       - scene
       - script
@@ -22,13 +21,21 @@ recorder:
       - rest_command
       - camera
       - notify
-      - light
       - sun
       - tts
-      - device_tracker
       - input_boolean
+      - button
     event_types:
       - call_service
+    entity_globs:
+      #- sensor.*_power
+      #- sensor.*_energy
+      - sensor.*macbook*
+      - sensor.*ipad*
+      - sensor.*iphone*
+      - switch.schedule*
+      - sensor.load*
+      - sensor.network*
     entities:
       - sensor.date
       - sensor.time
@@ -54,28 +61,8 @@ recorder:
       # - sensor.cpu_temperature
       # - sensor.disk_use_percent
       - sensor.harmony_activity
-      - sensor.ipad_de_cedric_battery_level
-      - sensor.ipad_de_cedric_battery_state
-      - sensor.ipad_de_cedric_bssid
-      - sensor.ipad_de_cedric_connection_type
-      - sensor.ipad_de_cedric_geocoded_location
-      - sensor.ipad_de_cedric_last_update_trigger
-      - sensor.ipad_de_cedric_ssid
-      - sensor.iphone_de_cedric_battery_level
-      - sensor.iphone_de_cedric_battery_state
-      - sensor.iphone_de_cedric_bssid
-      - sensor.iphone_de_cedric_connection_type
-      - sensor.iphone_de_cedric_geocoded_location
-      - sensor.iphone_de_cedric_last_update_trigger
-      - sensor.iphone_de_cedric_sim_1
-      - sensor.iphone_de_cedric_ssid
       - sensor.last_boot
-      - sensor.load_15m
-      - sensor.load_1m
-      - sensor.load_5m
       # - sensor.memory_use_percent
-      - sensor.network_throughput_in_eth0
-      - sensor.network_throughput_out_eth0
       # - sensor.processor_use
       - sensor.zoe_battery_temperature
       # - sensor.zoe_charging
