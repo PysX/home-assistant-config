@@ -5,7 +5,68 @@
 #   @url            :   https://community.home-assistant.io/t/custom-component-long-time-state-storage-ltss-utilizing-timescaledb/155047
 ###############################################################################
 
-ltss:
-  db_url: !secret postgres_url
-  # 30 days (default value)
-  chunk_time_interval: 2592000000000
+# ltss:
+#   db_url: !secret postgres_url
+#   # 30 days (default value)
+#   chunk_time_interval: 2592000000000
+#   include:
+#     domains:
+#       - light
+#       - person
+#     entities:
+#       - sensor.motion_sensor_illuminance
+#       - switch.cord_switch
+#       - binary_sensor.dryer_machine
+#       - binary_sensor.washing_machine
+#       - binary_sensor.zoe_charging
+#       - binary_sensor.zoe_plugged_in
+#       - select.harmony_hub_activities
+#       - sensor.dark_outside
+#       - sensor.maison_cloud_cover
+#       - sensor.maison_daily_precipitation
+#       - sensor.mode
+#       - sensor.total_energy_cost
+#       - sensor.zoe_battery_autonomy
+#       - sensor.zoe_battery_level
+#       - sensor.zoe_kwh_per_km
+#       - sensor.zoe_mileage
+#       - weather.maison
+#     entity_globs:
+#       - sensor.*humidity*
+#       - sensor.*temperature*
+#       - sensor.*pressure*
+#       - sensor.*air_quality*
+#       - sensor.*kwh*
+#       - sensor.*energy*
+#       - switch.innr_sp_220*
+#       - switch.metered_wall_plug_switch*
+#       - switch.smart_switch_*
+
+#   exclude
+#         domains
+#         (list)(Optional)
+#         The list of domains to be excluded from recordings.
+
+#         entities
+#         (list)(Optional)
+#         The list of entity ids to be excluded from recordings.
+
+#         entity_globs:
+#         (list)(Optional)
+#         Exclude all entities matching a listed pattern from recordings (e.g., `sensor.weather_*`).
+
+#     include
+#     (map)(Optional)
+#     Configure which integrations should be included in recordings. If set, all other entities will not be recorded.
+
+#         domains
+#         (list)(Optional)
+#         The list of domains to be included in the recordings.
+
+#         entities
+#         (list)(Optional)
+#         The list of entity ids to be included in the recordings.
+
+#         entity_globs:
+#         (list)(Optional)
+#         Include all entities matching a listed pattern from recordings (e.g., `sensor.weather_*`).
