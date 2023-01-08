@@ -18,7 +18,7 @@ from homeassistant.const import (
     ATTR_TIME,
     CONF_SERVICE,
     ATTR_SERVICE_DATA,
-    CONF_SERVICE_DATA
+    CONF_SERVICE_DATA,
 )
 from homeassistant.core import callback
 from homeassistant.helpers.entity import ToggleEntity, EntityCategory
@@ -224,14 +224,31 @@ class ScheduleEntity(ToggleEntity):
         if self._init:
             # initial startpoint for timer calculated, fire actions if currently overlapping with timeslot
             if self._current_slot is not None and self._state != STATE_OFF:
-                _LOGGER.debug(
-                    "Schedule {} is starting in a timeslot, proceed with actions".format(
-                        self.schedule_id
+                trigger_actions = True
+                if self.coordinator.state == const.STATE_INIT and self.coordinator.time_shutdown:
+                    # if the date+time of prior shutdown is known, determine which timeslots are already triggered before
+                    # calculate the next start of timeslot since the time of shutdown, execute only if this is in the past
+                    ts_shutdown = self.coordinator.time_shutdown
+                    now = dt_util.as_local(dt_util.utcnow())
+                    start_time = self.schedule[const.ATTR_TIMESLOTS][self._current_slot][const.ATTR_START]
+                    start_of_timeslot = self._timer_handler.calculate_timestamp(start_time, ts_shutdown)
+                    if start_of_timeslot > now:
+                        _LOGGER.debug(
+                            "Schedule {} was already executed before shutdown, initial timeslot is skipped.".format(
+                                self.schedule_id
+                            )
+                        )
+                        trigger_actions = False
+
+                if trigger_actions:
+                    _LOGGER.debug(
+                        "Schedule {} is starting in a timeslot, proceed with actions".format(
+                            self.schedule_id
+                        )
                     )
-                )
-                await self._action_handler.async_queue_actions(
-                    self.schedule[const.ATTR_TIMESLOTS][self._current_slot]
-                )
+                    await self._action_handler.async_queue_actions(
+                        self.schedule[const.ATTR_TIMESLOTS][self._current_slot]
+                    )
             self._init = False
 
         if self.hass is None:
@@ -316,7 +333,7 @@ class ScheduleEntity(ToggleEntity):
         return "mdi:calendar-clock"
 
     @property
-    def EntityCategory(self):
+    def entity_category(self):
         """Return EntityCategory."""
         return EntityCategory.CONFIG
 
@@ -359,7 +376,11 @@ class ScheduleEntity(ToggleEntity):
             return
         for timeslot in self.schedule[const.ATTR_TIMESLOTS]:
             if timeslot[const.ATTR_STOP]:
-                timeslots.append("{} - {}".format(timeslot[const.ATTR_START], timeslot[const.ATTR_STOP]))
+                timeslots.append(
+                    "{} - {}".format(
+                        timeslot[const.ATTR_START], timeslot[const.ATTR_STOP]
+                    )
+                )
             else:
                 timeslots.append(timeslot[const.ATTR_START])
         return timeslots

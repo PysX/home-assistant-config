@@ -146,7 +146,9 @@ class TimerHandler:
             if (timestamp - now).total_seconds() < 0:
                 self._timer = None
                 _LOGGER.debug(
-                    "Timer of {} is not set because it is in the past".format(self.id)
+                    "Timer of {} is not set because it is in the past ({})".format(
+                        self.id, timestamp
+                    )
                 )
             else:
                 self._timer = async_track_point_in_time(
@@ -313,7 +315,11 @@ class TimerHandler:
         return day in self._weekdays
 
     def calculate_timestamp(
-        self, time_str, now: datetime.datetime = None, iteration: int = 0
+        self,
+        time_str,
+        now: datetime.datetime = None,
+        iteration: int = 0,
+        reverse_direction: bool = False,
     ) -> datetime.datetime:
         """calculate the next occurence of a time string"""
         if time_str is None:
@@ -378,31 +384,37 @@ class TimerHandler:
         ):
 
             if self._start_date and days_until_date(self._start_date, ts) > 0:
-                # start date is more than a week in the future, jump to start date
-                time_delta = datetime.timedelta(
-                    days=days_until_date(self._start_date, ts)
-                )
+                # start date is in the future, jump to start date
+                end_of_day = ts.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
+                days_delta = days_until_date(self._start_date, end_of_day)
+                if days_delta:
+                    time_delta = datetime.timedelta(days=days_delta)
 
             elif self._end_date and days_until_date(self._end_date, ts) < 0:
                 # end date is in the past, jump to end date
                 time_delta = datetime.timedelta(
                     days=days_until_date(self._end_date, ts)
                 )
+                reverse_direction = True
 
             else:
                 # date restrictions are met
                 return ts
+        elif reverse_direction:
+            time_delta = datetime.timedelta(days=-1)
 
         # calculate next timestamp
         next_day = dt_util.find_next_time_expression_time(
             now + time_delta, [0], [0], [0]
         )
-        if iteration > 7:
+        if iteration > 15:
             _LOGGER.warning(
                 "failed to calculate next timeslot for schedule {}".format(self.id)
             )
             return None
-        return self.calculate_timestamp(time_str, next_day, iteration + 1)
+        return self.calculate_timestamp(
+            time_str, next_day, iteration + 1, reverse_direction
+        )
 
     def next_timeslot(self):
         """calculate the closest timeslot from now"""

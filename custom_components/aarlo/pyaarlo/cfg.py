@@ -256,5 +256,11 @@ class ArloCfg(object):
         return self._kw.get("no_unicode_squash", True)
 
     @property
-    def use_mqtt(self):
-        return self._kw.get("backend", "mqtt") == "mqtt"
+    def event_backend(self):
+        return self._kw.get("backend", "auto")
+
+    @property
+    def cipher_list(self):
+        if self._kw.get("default_ciphers", False):
+            return 'DEFAULT'
+        return self._kw.get("cipher_list", "")

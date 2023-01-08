@@ -5,36 +5,46 @@ from __future__ import annotations
 import logging
 
 import homeassistant.helpers.config_validation as cv
-import homeassistant.helpers.entity_registry as er
 import voluptuous as vol
-from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN
+from awesomeversion.awesomeversion import AwesomeVersion
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.utility_meter import DEFAULT_OFFSET, max_28_days
 from homeassistant.components.utility_meter.const import METER_TYPES
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import (
-    CONF_ENTITY_ID,
+    CONF_DOMAIN,
+    CONF_ENTITIES,
     CONF_SCAN_INTERVAL,
-    CONF_UNIQUE_ID,
     EVENT_HOMEASSISTANT_STARTED,
+    Platform,
 )
-from homeassistant.core import callback
-from homeassistant.helpers import discovery
-from homeassistant.helpers.entity_component import EntityComponent
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.const import __version__ as HA_VERSION
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.discovery import async_load_platform
 
-from .common import create_source_entity, validate_name_pattern
+from .common import SourceEntity, create_source_entity, validate_name_pattern
 from .const import (
     CONF_CREATE_DOMAIN_GROUPS,
     CONF_CREATE_ENERGY_SENSORS,
     CONF_CREATE_UTILITY_METERS,
+    CONF_DISABLE_EXTENDED_ATTRIBUTES,
     CONF_ENABLE_AUTODISCOVERY,
     CONF_ENERGY_INTEGRATION_METHOD,
     CONF_ENERGY_SENSOR_CATEGORY,
+    CONF_ENERGY_SENSOR_FRIENDLY_NAMING,
     CONF_ENERGY_SENSOR_NAMING,
     CONF_ENERGY_SENSOR_PRECISION,
+    CONF_ENERGY_SENSOR_UNIT_PREFIX,
+    CONF_FORCE_UPDATE_FREQUENCY,
+    CONF_IGNORE_UNAVAILABLE_STATE,
+    CONF_MANUFACTURER,
+    CONF_MODE,
+    CONF_MODEL,
     CONF_POWER_SENSOR_CATEGORY,
+    CONF_POWER_SENSOR_FRIENDLY_NAMING,
     CONF_POWER_SENSOR_NAMING,
     CONF_POWER_SENSOR_PRECISION,
+    CONF_SENSOR_TYPE,
     CONF_UTILITY_METER_OFFSET,
     CONF_UTILITY_METER_TARIFFS,
     CONF_UTILITY_METER_TYPES,
@@ -42,36 +52,54 @@ from .const import (
     DATA_CONFIGURED_ENTITIES,
     DATA_DISCOVERED_ENTITIES,
     DATA_DOMAIN_ENTITIES,
+    DATA_USED_UNIQUE_IDS,
     DEFAULT_ENERGY_INTEGRATION_METHOD,
     DEFAULT_ENERGY_NAME_PATTERN,
     DEFAULT_ENERGY_SENSOR_PRECISION,
     DEFAULT_ENTITY_CATEGORY,
     DEFAULT_POWER_NAME_PATTERN,
     DEFAULT_POWER_SENSOR_PRECISION,
-    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_UPDATE_FREQUENCY,
     DEFAULT_UTILITY_METER_TYPES,
-    DISCOVERY_LIGHT_MODEL,
+    DISCOVERY_POWER_PROFILE,
     DISCOVERY_SOURCE_ENTITY,
+    DISCOVERY_TYPE,
     DOMAIN,
     DOMAIN_CONFIG,
     ENERGY_INTEGRATION_METHODS,
     ENTITY_CATEGORIES,
+    MIN_HA_VERSION,
+    CalculationStrategy,
+    PowercalcDiscoveryType,
+    SensorType,
+    UnitPrefix,
 )
-from .errors import ModelNotSupported
-from .model_discovery import get_light_model, is_supported_for_autodiscovery
-from .sensors.group import create_group_sensors
+from .discovery import DiscoveryManager
+from .power_profile.power_profile import DEVICE_DOMAINS
+from .sensors.group import (
+    remove_group_from_power_sensor_entry,
+    remove_power_sensor_from_associated_groups,
+)
 from .strategy.factory import PowerCalculatorStrategyFactory
+
+PLATFORMS = [Platform.SENSOR]
 
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.All(
+            cv.deprecated(
+                CONF_SCAN_INTERVAL, replacement_key=CONF_FORCE_UPDATE_FREQUENCY
+            ),
             vol.Schema(
                 {
                     vol.Optional(
-                        CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
+                        CONF_FORCE_UPDATE_FREQUENCY, default=DEFAULT_UPDATE_FREQUENCY
                     ): cv.time_period,
                     vol.Optional(
                         CONF_POWER_SENSOR_NAMING, default=DEFAULT_POWER_NAME_PATTERN
+                    ): validate_name_pattern,
+                    vol.Optional(
+                        CONF_POWER_SENSOR_FRIENDLY_NAMING
                     ): validate_name_pattern,
                     vol.Optional(
                         CONF_POWER_SENSOR_CATEGORY, default=DEFAULT_ENTITY_CATEGORY
@@ -80,8 +108,14 @@ CONFIG_SCHEMA = vol.Schema(
                         CONF_ENERGY_SENSOR_NAMING, default=DEFAULT_ENERGY_NAME_PATTERN
                     ): validate_name_pattern,
                     vol.Optional(
+                        CONF_ENERGY_SENSOR_FRIENDLY_NAMING
+                    ): validate_name_pattern,
+                    vol.Optional(
                         CONF_ENERGY_SENSOR_CATEGORY, default=DEFAULT_ENTITY_CATEGORY
                     ): vol.In(ENTITY_CATEGORIES),
+                    vol.Optional(
+                        CONF_DISABLE_EXTENDED_ATTRIBUTES, default=False
+                    ): cv.boolean,
                     vol.Optional(CONF_ENABLE_AUTODISCOVERY, default=True): cv.boolean,
                     vol.Optional(CONF_CREATE_ENERGY_SENSORS, default=True): cv.boolean,
                     vol.Optional(CONF_CREATE_UTILITY_METERS, default=False): cv.boolean,
@@ -106,9 +140,13 @@ CONFIG_SCHEMA = vol.Schema(
                         CONF_POWER_SENSOR_PRECISION,
                         default=DEFAULT_POWER_SENSOR_PRECISION,
                     ): cv.positive_int,
+                    vol.Optional(
+                        CONF_ENERGY_SENSOR_UNIT_PREFIX, default=UnitPrefix.KILO
+                    ): vol.In([cls.value for cls in UnitPrefix]),
                     vol.Optional(CONF_CREATE_DOMAIN_GROUPS, default=[]): vol.All(
                         cv.ensure_list, [cv.string]
                     ),
+                    vol.Optional(CONF_IGNORE_UNAVAILABLE_STATE): cv.boolean,
                 }
             ),
         )
@@ -119,7 +157,14 @@ CONFIG_SCHEMA = vol.Schema(
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup(hass: HomeAssistantType, config: dict) -> bool:
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    if AwesomeVersion(HA_VERSION) < AwesomeVersion(MIN_HA_VERSION):
+        _LOGGER.critical(
+            "Your HA version is outdated for this version of powercalc. Minimum required HA version is %s",
+            MIN_HA_VERSION,
+        )
+        return False
+
     domain_config = config.get(DOMAIN) or {
         CONF_POWER_SENSOR_NAMING: DEFAULT_POWER_NAME_PATTERN,
         CONF_POWER_SENSOR_PRECISION: DEFAULT_POWER_SENSOR_PRECISION,
@@ -128,7 +173,10 @@ async def async_setup(hass: HomeAssistantType, config: dict) -> bool:
         CONF_ENERGY_SENSOR_NAMING: DEFAULT_ENERGY_NAME_PATTERN,
         CONF_ENERGY_SENSOR_PRECISION: DEFAULT_ENERGY_SENSOR_PRECISION,
         CONF_ENERGY_SENSOR_CATEGORY: DEFAULT_ENTITY_CATEGORY,
-        CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
+        CONF_ENERGY_SENSOR_UNIT_PREFIX: UnitPrefix.KILO,
+        CONF_FORCE_UPDATE_FREQUENCY: DEFAULT_UPDATE_FREQUENCY,
+        CONF_DISABLE_EXTENDED_ATTRIBUTES: False,
+        CONF_IGNORE_UNAVAILABLE_STATE: False,
         CONF_CREATE_DOMAIN_GROUPS: [],
         CONF_CREATE_ENERGY_SENSORS: True,
         CONF_CREATE_UTILITY_METERS: False,
@@ -142,10 +190,13 @@ async def async_setup(hass: HomeAssistantType, config: dict) -> bool:
         DOMAIN_CONFIG: domain_config,
         DATA_CONFIGURED_ENTITIES: {},
         DATA_DOMAIN_ENTITIES: {},
-        DATA_DISCOVERED_ENTITIES: [],
+        DATA_DISCOVERED_ENTITIES: {},
+        DATA_USED_UNIQUE_IDS: [],
     }
 
-    await autodiscover_entities(config, domain_config, hass)
+    if domain_config.get(CONF_ENABLE_AUTODISCOVERY):
+        discovery_manager = DiscoveryManager(hass, config)
+        await discovery_manager.start_discovery()
 
     if domain_config.get(CONF_CREATE_DOMAIN_GROUPS):
 
@@ -164,76 +215,74 @@ async def async_setup(hass: HomeAssistantType, config: dict) -> bool:
     return True
 
 
-async def autodiscover_entities(
-    config: dict, domain_config: dict, hass: HomeAssistantType
-):
-    """Discover entities supported for powercalc autoconfiguration in HA instance"""
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up Powercalc integration from a config entry."""
 
-    if not domain_config.get(CONF_ENABLE_AUTODISCOVERY):
-        return
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(entry.add_update_listener(async_update_entry))
+    return True
 
-    _LOGGER.debug("Start auto discovering entities")
-    entity_registry = await er.async_get_registry(hass)
-    for entity_entry in list(entity_registry.entities.values()):
-        if entity_entry.disabled:
-            continue
 
-        if entity_entry.domain != LIGHT_DOMAIN:
-            continue
+async def async_update_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Update a given config entry."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
-        if not await is_supported_for_autodiscovery(hass, entity_entry):
-            continue
 
-        source_entity = await create_source_entity(entity_entry.entity_id, hass)
+async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        config_entry, PLATFORMS
+    )
+
+    if unload_ok:
+        used_unique_ids: list[str] = hass.data[DOMAIN][DATA_USED_UNIQUE_IDS]
         try:
-            light_model = await get_light_model(hass, {}, source_entity.entity_entry)
-            if not light_model.is_autodiscovery_allowed:
-                _LOGGER.debug(
-                    f"{entity_entry.entity_id}: Model found in database, but needs manual configuration"
-                )
-                continue
-        except ModelNotSupported:
-            _LOGGER.debug(
-                "%s: Model not found in library, skipping auto configuration",
-                entity_entry.entity_id,
-            )
-            continue
+            used_unique_ids.remove(config_entry.unique_id)
+        except ValueError:
+            return True
 
-        if not light_model:
-            continue
+    return unload_ok
 
-        discovery_info = {
-            CONF_ENTITY_ID: entity_entry.entity_id,
-            DISCOVERY_SOURCE_ENTITY: source_entity,
-            DISCOVERY_LIGHT_MODEL: light_model,
-        }
-        hass.async_create_task(
-            discovery.async_load_platform(
-                hass, SENSOR_DOMAIN, DOMAIN, discovery_info, config
-            )
+
+async def async_remove_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Called after a config entry is removed."""
+    updated_entries: list[ConfigEntry] = []
+
+    sensor_type = config_entry.data.get(CONF_SENSOR_TYPE)
+    if sensor_type == SensorType.VIRTUAL_POWER:
+        updated_entries = await remove_power_sensor_from_associated_groups(
+            hass, config_entry
         )
+    if sensor_type == SensorType.GROUP:
+        updated_entries = await remove_group_from_power_sensor_entry(hass, config_entry)
 
-    _LOGGER.debug("Done auto discovering entities")
+    for entry in updated_entries:
+        if entry.state == ConfigEntryState.LOADED:
+            await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def create_domain_groups(
-    hass: HomeAssistantType, global_config: dict, domains: list[str]
+    hass: HomeAssistant, global_config: dict, domains: list[str]
 ):
     """Create group sensors aggregating all power sensors from given domains"""
-    component = EntityComponent(_LOGGER, SENSOR_DOMAIN, hass)
-    sensor_config = global_config.copy()
-    _LOGGER.debug(f"Setting up domain based group sensors..")
+    _LOGGER.debug("Setting up domain based group sensors..")
     for domain in domains:
-        if not domain in hass.data[DOMAIN].get(DATA_DOMAIN_ENTITIES):
+        if domain not in hass.data[DOMAIN].get(DATA_DOMAIN_ENTITIES):
             _LOGGER.error(f"Cannot setup group for domain {domain}, no entities found")
             continue
 
         domain_entities = hass.data[DOMAIN].get(DATA_DOMAIN_ENTITIES)[domain]
-        sensor_config[CONF_UNIQUE_ID] = f"powercalc_domaingroup_{domain}"
-        group_name = f"All {domain}"
 
-        entities = await create_group_sensors(
-            group_name, sensor_config, domain_entities, hass
+        hass.async_create_task(
+            async_load_platform(
+                hass,
+                SENSOR_DOMAIN,
+                DOMAIN,
+                {
+                    DISCOVERY_TYPE: PowercalcDiscoveryType.DOMAIN_GROUP,
+                    CONF_ENTITIES: domain_entities,
+                    CONF_DOMAIN: domain,
+                },
+                global_config,
+            )
         )
-        await component.async_add_entities(entities)
-    return []

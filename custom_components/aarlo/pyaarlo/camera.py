@@ -235,6 +235,7 @@ class ArloCamera(ArloChildDevice):
     def _stop_snapshot(self):
         # Signal to anybody waiting.
         with self._lock:
+            self._remote_users.discard("snapshot")
             if not self.has_user_request("snapshot"):
                 return
             self._user_requests.discard("snapshot")
@@ -400,8 +401,8 @@ class ArloCamera(ArloChildDevice):
             with self._lock:
                 if not self.has_user_request("snapshot"):
                     self._remote_users.add("snapshot")
-                    #  if not self.has_any_local_users:
-                    #  self._local_users.add("remote")
+                    self._arlo.vdebug("handle dodgy remote cameras")
+                    self._arlo.bg.run_in(self._stop_snapshot, self._arlo.cfg.snapshot_timeout)
                 self._dump_activities("_event::snap")
         if activity == "alertStreamActive":
             with self._lock:
@@ -1374,7 +1375,7 @@ class ArloCamera(ArloChildDevice):
                 return True
         if cap in (CONNECTION_KEY,):
             # These devices are their own base stations so don't re-add connection key.
-            if self.model_id.startswith(
+            if self.parent_id == self.device_id and self.model_id.startswith(
                 (
                     MODEL_BABY,
                     MODEL_PRO_3_FLOODLIGHT,

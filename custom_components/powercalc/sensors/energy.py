@@ -1,49 +1,38 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import Any, Optional
+from typing import Any, Mapping, Optional
 
 import homeassistant.helpers.entity_registry as er
-from awesomeversion.awesomeversion import AwesomeVersion
+import homeassistant.util.dt as dt_util
 from homeassistant.components.integration.sensor import IntegrationSensor
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
-from homeassistant.components.sensor import STATE_CLASS_TOTAL_INCREASING, SensorEntity
-from homeassistant.const import (
-    CONF_NAME,
-    CONF_UNIQUE_ID,
-    CONF_UNIT_OF_MEASUREMENT,
-    DEVICE_CLASS_ENERGY,
-    ENERGY_KILO_WATT_HOUR,
-    POWER_WATT,
-    TIME_HOURS,
-)
-from homeassistant.const import __version__ as HA_VERSION
-from homeassistant.core import callback
-from homeassistant.helpers.entity import async_generate_entity_id
-from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.helpers.template import Template
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import CONF_NAME, ENERGY_KILO_WATT_HOUR, TIME_HOURS
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.typing import ConfigType
 
-from custom_components.powercalc.common import SourceEntity
-from custom_components.powercalc.const import (
+from ..common import SourceEntity
+from ..const import (
     ATTR_SOURCE_DOMAIN,
     ATTR_SOURCE_ENTITY,
-    CONF_DAILY_FIXED_ENERGY,
+    CONF_DISABLE_EXTENDED_ATTRIBUTES,
     CONF_ENERGY_INTEGRATION_METHOD,
     CONF_ENERGY_SENSOR_CATEGORY,
-    CONF_ENERGY_SENSOR_NAMING,
+    CONF_ENERGY_SENSOR_ID,
     CONF_ENERGY_SENSOR_PRECISION,
-    CONF_ON_TIME,
+    CONF_ENERGY_SENSOR_UNIT_PREFIX,
     CONF_POWER_SENSOR_ID,
-    CONF_UPDATE_FREQUENCY,
-    CONF_VALUE,
     DEFAULT_ENERGY_INTEGRATION_METHOD,
+    UnitPrefix,
 )
-from custom_components.powercalc.migrate import async_migrate_entity_id
-from custom_components.powercalc.sensors.power import PowerSensor, RealPowerSensor
+from .abstract import (
+    BaseEntity,
+    generate_energy_sensor_entity_id,
+    generate_energy_sensor_name,
+)
+from .power import PowerSensor, RealPowerSensor
 
 ENERGY_ICON = "mdi:lightning-bolt"
 ENTITY_ID_FORMAT = SENSOR_DOMAIN + ".{}"
@@ -52,13 +41,20 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def create_energy_sensor(
-    hass: HomeAssistantType,
-    sensor_config: dict,
+    hass: HomeAssistant,
+    sensor_config: ConfigType,
     power_sensor: PowerSensor,
     source_entity: SourceEntity,
 ) -> EnergySensor:
     """Create the energy sensor entity"""
 
+    # User specified an existing energy sensor with "energy_sensor_id" option. Just return that one
+    if CONF_ENERGY_SENSOR_ID in sensor_config:
+        ent_reg = er.async_get(hass)
+        entity_entry = ent_reg.async_get(sensor_config[CONF_ENERGY_SENSOR_ID])
+        return RealEnergySensor(entity_entry)
+
+    # User specified an existing power sensor with "power_sensor_id" option. Try to find a corresponding energy sensor
     if CONF_POWER_SENSOR_ID in sensor_config and isinstance(
         power_sensor, RealPowerSensor
     ):
@@ -73,18 +69,22 @@ async def create_energy_sensor(
             f"No existing energy sensor found for the power sensor '{power_sensor.entity_id}'"
         )
 
-    name_pattern = sensor_config.get(CONF_ENERGY_SENSOR_NAMING)
-    name = sensor_config.get(CONF_NAME) or source_entity.name
-    name = name_pattern.format(name)
-    object_id = sensor_config.get(CONF_NAME) or source_entity.object_id
-    entity_id = async_generate_entity_id(
-        ENTITY_ID_FORMAT, name_pattern.format(object_id), hass=hass
+    # Create an energy sensor based on riemann integral integration, which uses the virtual powercalc sensor as source.
+    name = generate_energy_sensor_name(
+        sensor_config, sensor_config.get(CONF_NAME), source_entity
     )
-    entity_category = sensor_config.get(CONF_ENERGY_SENSOR_CATEGORY)
     unique_id = None
     if power_sensor.unique_id:
         unique_id = f"{power_sensor.unique_id}_energy"
-        async_migrate_entity_id(hass, SENSOR_DOMAIN, unique_id, entity_id)
+
+    entity_id = generate_energy_sensor_entity_id(
+        hass, sensor_config, source_entity, unique_id=unique_id
+    )
+    entity_category = sensor_config.get(CONF_ENERGY_SENSOR_CATEGORY)
+
+    unit_prefix = sensor_config.get(CONF_ENERGY_SENSOR_UNIT_PREFIX)
+    if unit_prefix == UnitPrefix.NONE:
+        unit_prefix = None
 
     _LOGGER.debug("Creating energy sensor: %s", name)
     return VirtualEnergySensor(
@@ -94,37 +94,19 @@ async def create_energy_sensor(
         entity_category=entity_category,
         name=name,
         round_digits=sensor_config.get(CONF_ENERGY_SENSOR_PRECISION),
-        unit_prefix="k",
-        unit_of_measurement=None,
+        unit_prefix=unit_prefix,
         unit_time=TIME_HOURS,
         integration_method=sensor_config.get(CONF_ENERGY_INTEGRATION_METHOD)
         or DEFAULT_ENERGY_INTEGRATION_METHOD,
         powercalc_source_entity=source_entity.entity_id,
         powercalc_source_domain=source_entity.domain,
-    )
-
-
-async def create_daily_fixed_energy_sensor(
-    hass: HomeAssistantType, sensor_config: dict
-) -> DailyEnergySensor:
-    mode_config = sensor_config.get(CONF_DAILY_FIXED_ENERGY)
-
-    return DailyEnergySensor(
-        hass,
-        sensor_config.get(CONF_NAME),
-        sensor_config.get(CONF_ENERGY_SENSOR_CATEGORY),
-        mode_config.get(CONF_VALUE),
-        mode_config.get(CONF_UNIT_OF_MEASUREMENT),
-        mode_config.get(CONF_UPDATE_FREQUENCY),
-        unique_id=sensor_config.get(CONF_UNIQUE_ID),
-        on_time=mode_config.get(CONF_ON_TIME),
-        rounding_digits=sensor_config.get(CONF_ENERGY_SENSOR_PRECISION),
+        sensor_config=sensor_config,
     )
 
 
 @callback
 def find_related_real_energy_sensor(
-    hass: HomeAssistantType, power_sensor: RealPowerSensor
+    hass: HomeAssistant, power_sensor: RealPowerSensor
 ) -> Optional[RealEnergySensor]:
     """See if a corresponding energy sensor exists in the HA installation for the power sensor"""
 
@@ -137,7 +119,7 @@ def find_related_real_energy_sensor(
         for entry in er.async_entries_for_device(
             ent_reg, device_id=power_sensor.device_id
         )
-        if entry.device_class == DEVICE_CLASS_ENERGY
+        if entry.device_class == SensorDeviceClass.ENERGY
         or entry.unit_of_measurement == ENERGY_KILO_WATT_HOUR
     ]
     if not energy_sensors:
@@ -146,10 +128,8 @@ def find_related_real_energy_sensor(
     return RealEnergySensor(energy_sensors[0])
 
 
-class EnergySensor:
-    """Class which all power sensors should extend from"""
-
-    pass
+class EnergySensor(BaseEntity):
+    """Class which all energy sensors should extend from"""
 
 
 class VirtualEnergySensor(IntegrationSensor, EnergySensor):
@@ -165,135 +145,55 @@ class VirtualEnergySensor(IntegrationSensor, EnergySensor):
         round_digits,
         unit_prefix,
         unit_time,
-        unit_of_measurement,
         integration_method,
         powercalc_source_entity: str,
         powercalc_source_domain: str,
+        sensor_config: ConfigType,
     ):
-        if AwesomeVersion(HA_VERSION) >= AwesomeVersion("2022.4.0.dev0"):
-            super().__init__(
-                source_entity=source_entity,
-                name=name,
-                round_digits=round_digits,
-                unit_prefix=unit_prefix,
-                unit_time=unit_time,
-                unit_of_measurement=unit_of_measurement,
-                integration_method=integration_method,
-                unique_id=unique_id,
-            )
-        else:
-            super().__init__(
-                source_entity=source_entity,
-                name=name,
-                round_digits=round_digits,
-                unit_prefix=unit_prefix,
-                unit_time=unit_time,
-                unit_of_measurement=unit_of_measurement,
-                integration_method=integration_method,
-            )
-            if unique_id:
-                self._attr_unique_id = unique_id
+        super().__init__(
+            source_entity=source_entity,
+            name=name,
+            round_digits=round_digits,
+            unit_prefix=unit_prefix,
+            unit_time=unit_time,
+            integration_method=integration_method,
+            unique_id=unique_id,
+        )
 
         self._powercalc_source_entity = powercalc_source_entity
         self._powercalc_source_domain = powercalc_source_domain
+        self._sensor_config = sensor_config
         self.entity_id = entity_id
         if entity_category:
-            if AwesomeVersion(HA_VERSION) >= AwesomeVersion("2021.11"):
-                from homeassistant.helpers.entity import EntityCategory
-
-                self._attr_entity_category = EntityCategory(entity_category)
+            self._attr_entity_category = EntityCategory(entity_category)
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return the state attributes of the acceleration sensor."""
-        state_attr = super().extra_state_attributes
-        state_attr[ATTR_SOURCE_ENTITY] = self._powercalc_source_entity
-        state_attr[ATTR_SOURCE_DOMAIN] = self._powercalc_source_domain
-        return state_attr
+    def extra_state_attributes(self) -> Mapping[str, Any]:
+        """Return the state attributes of the energy sensor."""
+        if self._sensor_config.get(CONF_DISABLE_EXTENDED_ATTRIBUTES):
+            return super().extra_state_attributes
+
+        attrs = {
+            ATTR_SOURCE_ENTITY: self._powercalc_source_entity,
+            ATTR_SOURCE_DOMAIN: self._powercalc_source_domain,
+        }
+        attrs.update(super().extra_state_attributes)
+        return attrs
 
     @property
     def icon(self):
         return ENERGY_ICON
 
-
-class DailyEnergySensor(RestoreEntity, SensorEntity, EnergySensor):
-    _attr_device_class = DEVICE_CLASS_ENERGY
-    _attr_state_class = STATE_CLASS_TOTAL_INCREASING
-    _attr_native_unit_of_measurement = ENERGY_KILO_WATT_HOUR
-    _attr_should_poll = False
-    _attr_icon = ENERGY_ICON
-
-    def __init__(
-        self,
-        hass: HomeAssistantType,
-        name: str,
-        entity_category: str,
-        value: float,
-        unit_of_measurement: str,
-        update_frequency: int,
-        unique_id: str = None,
-        on_time: timedelta = None,
-        rounding_digits: int = 4,
-    ):
-        self._hass = hass
-        self._attr_name = name
-        self._attr_entity_category = entity_category
-        self._value = value
-        self._unit_of_measurement = unit_of_measurement
-        self._update_frequency = update_frequency
-        self._on_time = on_time or timedelta(days=1)
-        self._rounding_digits = rounding_digits
-        self._attr_unique_id = unique_id
-        self.entity_id = async_generate_entity_id(ENTITY_ID_FORMAT, name, hass=hass)
-
-    async def async_added_to_hass(self):
-        """Handle entity which will be added."""
-
-        if state := await self.async_get_last_state():
-            self._state = Decimal(state.state)
-            delta = self.calculate_delta(
-                round(datetime.now().timestamp() - state.last_changed.timestamp())
-            )
-            self._state = self._state + delta
-            self.async_schedule_update_ha_state()
-        else:
-            self._state = Decimal(0)
-
-        _LOGGER.debug(f"{self.entity_id}: Restoring state: {self._state}")
-
-        @callback
-        def refresh(event_time=None):
-            """Update the energy sensor state."""
-            self._state = self._state + self.calculate_delta(self._update_frequency)
-            _LOGGER.debug(
-                f"{self.entity_id}: Updating daily_fixed_energy sensor: {round(self._state, 4)}"
-            )
-            self.async_schedule_update_ha_state()
-
-        self._timer = async_track_time_interval(
-            self.hass, refresh, timedelta(seconds=self._update_frequency)
-        )
-
-    def calculate_delta(self, elapsedSeconds: int) -> Decimal:
-        value = self._value
-        if isinstance(value, Template):
-            value = value.render()
-
-        if self._unit_of_measurement == ENERGY_KILO_WATT_HOUR:
-            kwhPerDay = value
-        elif self._unit_of_measurement == POWER_WATT:
-            kwhPerDay = (value * (self._on_time.total_seconds() / 3600)) / 1000
-
-        return Decimal((kwhPerDay / 86400) * elapsedSeconds)
-
-    @property
-    def native_value(self):
-        """Return the state of the sensor."""
-        return round(self._state, self._rounding_digits)
+    @callback
+    def async_reset_energy(self) -> None:
+        _LOGGER.debug(f"{self.entity_id}: Reset energy sensor")
+        self._state = 0
+        self._attr_last_reset = dt_util.utcnow()
+        self.async_write_ha_state()
 
 
 class RealEnergySensor(EnergySensor):
-    """Contains a reference to a existing energy sensor entity"""
+    """Contains a reference to an existing energy sensor entity"""
 
     def __init__(self, entity_entry: er.RegistryEntry):
         self._entity_entry = entity_entry
@@ -304,7 +204,7 @@ class RealEnergySensor(EnergySensor):
         return self._entity_entry.entity_id
 
     @property
-    def name(self) -> str:
+    def name(self) -> str | None:
         """Return the name of the sensor."""
         return self._entity_entry.name or self._entity_entry.original_name
 
