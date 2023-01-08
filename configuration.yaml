@@ -55,6 +55,7 @@ http:
 zha:
   zigpy_config:
     ota:
-      ikea_provider: true # Auto update Trådfri devices
-      ledvance_provider: true # Auto update LEDVANCE/OSRAM
-
+      # Auto update Trådfri devices
+      ikea_provider: true
+      # Auto update LEDVANCE/OSRAM devices
+      ledvance_provider: true

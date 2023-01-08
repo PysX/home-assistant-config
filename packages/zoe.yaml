@@ -99,7 +99,7 @@ sensor:
           {% if states('sensor.zoe_battery_available_energy') == 'unknown' -%}
           unknown
           {%- else -%}
-          {{ ((states('sensor.zoe_battery_available_energy') |float) / (states('sensor.zoe_battery_autonomy') | float ) * 100) | round(2) }} 
+          {{ ((states('sensor.zoe_battery_available_energy') |float) / (states('sensor.zoe_battery_autonomy') | float ) * 100) | round(2) }}
           {%- endif %}
         unit_of_measurement: "kwh"
         icon_template: mdi:timelapse

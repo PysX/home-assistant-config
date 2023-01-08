@@ -7,7 +7,7 @@
 
 recorder:
   # purge_keep_days: 7  # par défaut 10
-  #db_url: !secret postgres_url
+  # db_url: !secret postgres_url
   exclude:
     domains:
       - automation
@@ -27,8 +27,8 @@ recorder:
     event_types:
       - call_service
     entity_globs:
-      #- sensor.*_power
-      #- sensor.*_energy
+      # - sensor.*_power
+      # - sensor.*_energy
       - sensor.*macbook*
       - sensor.*ipad*
       - sensor.*iphone*

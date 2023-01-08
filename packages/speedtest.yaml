@@ -12,16 +12,16 @@ sensor:
     command_timeout: 60
     # Summarize results to stay below string limit and convert to JSON
     value_template: >-
-      {{ 
-        { 
-          "ping": value_json.ping.latency, 
-          "download": value_json.download.bandwidth, 
+      {{
+        {
+          "ping": value_json.ping.latency,
+          "download": value_json.download.bandwidth,
           "upload": value_json.upload.bandwidth,
           "servername": value_json.server.name,
           "serverlocation": value_json.server.location,
           "servercountry": value_json.server.country,
         }
-        | to_json 
+        | to_json
       }}
 # SpeedTest.net CLI
 template:

@@ -32,5 +32,5 @@ template:
             states('sensor.chevet_droite_energy') | float(default=0) +
             states('sensor.chevet_gauche_energy') | float(default=0)
            ) | round(2) }}
-        #availability: >
+        # availability: >
         #  {{ states('sensor.powcasath_energy_total') != 'unavailable' and states('sensor.powapart_energy_total_2') != 'unavailable' }}
