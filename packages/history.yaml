@@ -45,14 +45,14 @@ history:
       # - sensor.ipad_de_cedric_geocoded_location
       # - sensor.ipad_de_cedric_last_update_trigger
       - sensor.ipad_de_cedric_ssid
-      - sensor.iphone_de_cedric_battery_level
-      - sensor.iphone_de_cedric_battery_state
-      - sensor.iphone_de_cedric_bssid
-      - sensor.iphone_de_cedric_connection_type
-      # - sensor.iphone_de_cedric_geocoded_location
-      # - sensor.iphone_de_cedric_last_update_trigger
-      - sensor.iphone_de_cedric_sim_1
-      - sensor.iphone_de_cedric_ssid
+      - sensor.iphone_battery_level
+      - sensor.iphone_battery_state
+      - sensor.iphone_bssid
+      - sensor.iphone_connection_type
+      # - sensor.iphone_geocoded_location
+      # - sensor.iphone_last_update_trigger
+      - sensor.iphone_sim_1
+      - sensor.iphone_ssid
       - sensor.last_boot
       - sensor.load_15m
       - sensor.load_1m

@@ -34,9 +34,9 @@ sensor:
         friendly_name: "HA Mode"
         value_template: >-
           {% if is_state('input_boolean.mode_home', 'on') %}
-             home
+            home
           {% elif is_state('input_boolean.mode_away', 'on') %}
-             away
+            away
           {% elif is_state('input_boolean.mode_night', 'on') %}
             night
           {% elif is_state('input_boolean.mode_holiday', 'on') %}
@@ -44,11 +44,11 @@ sensor:
           {% endif %}
         icon_template: >-
           {% if is_state('input_boolean.mode_home', 'on') %}
-             mdi:home-account
+            mdi:home-account
           {% elif is_state('input_boolean.mode_away', 'on') %}
-             mdi:walk
+            mdi:walk
           {% elif is_state('input_boolean.mode_night', 'on') %}
-             mdi:weather-night
+            mdi:weather-night
           {% elif is_state('input_boolean.mode_holiday', 'on') %}
             mdi:airplane-takeoff
           {% endif %}

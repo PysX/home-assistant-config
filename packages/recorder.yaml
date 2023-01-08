@@ -21,7 +21,6 @@ recorder:
       - rest_command
       - camera
       - notify
-      - sun
       - tts
       - input_boolean
       - button

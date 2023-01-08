@@ -66,8 +66,8 @@ sensor:
     sensors:
       zoe_mileage_target:
         value_template: >-
-          {{ (((as_timestamp(strptime(states('sensor.date'), '%Y-%m-%d')) - as_timestamp('2020-01-16 0:0:00+02:00'))
-          / 86400) * 22500 / (365 * 3)) | round}}
+          {{ (((as_timestamp(strptime(states('sensor.date'), '%Y-%m-%d')) - as_timestamp('2022-07-08 0:0:00+02:00'))
+          / 86400) * 30000 / (365 * 3)) | round}}
         friendly_name: "kilométrage cible"
         unit_of_measurement: "km"
         icon_template: mdi:bullseye-arrow
@@ -81,7 +81,7 @@ sensor:
         value_template: >-
           {% if states('sensor.zoe_charging_remaining_time') == 'unknown' -%}
           unknown
-          {%- elif is_state("binary_sensor.zoe_charging", "on") -%}
+          {%- elif is_state("binary_sensor.zoe_charging", "on") and (states.sensor.zoe_charging_remaining_time.state | int) > 0 -%}
           {{ states.sensor.zoe_charging_remaining_time.state | int | multiply(60) | timestamp_custom('%R', false)  }}
           {%- else -%}
           {{ "0" | int | multiply(60) | timestamp_custom('%R', false)  }}

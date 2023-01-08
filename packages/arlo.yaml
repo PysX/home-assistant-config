@@ -15,6 +15,7 @@ aarlo:
   # mode_api: v2
   #hide_deprecated_services: true
   # verbose_debug: True
+  backend: sse
 
 #
 # Alarm (gestion)

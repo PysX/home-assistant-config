@@ -11,11 +11,11 @@ binary_sensor:
   - platform: template
     sensors:
       #
-      # if current > 0.2 A and stay over for 5 min else off
+      # if current > 0.1 A and stay over for 5 min else off
       #
       washing_machine:
         friendly_name: Lave Linge
-        value_template: "{{ states('sensor.smart_switch_6_electric_consumed_a_2')|float(default=0) > 0.2 }}"
+        value_template: "{{ states('sensor.smart_switch_6_electric_consumption_a_2')|float(default=0) > 0.09 }}"
         delay_off:
           minutes: 5
         icon_template: >
@@ -29,7 +29,7 @@ binary_sensor:
       #
       dryer_machine:
         friendly_name: Sèche Linge
-        value_template: "{{ states('sensor.smart_switch_6_electric_consumed_a')|float(default=0) > 0.5 }}"
+        value_template: "{{ states('sensor.smart_switch_6_electric_consumption_a')|float(default=0) > 0.5 }}"
         delay_off:
           minutes: 2
         icon_template: >
