@@ -49,4 +49,12 @@ http:
   # Set this to your NGINX machine IP, or localhost if hosted on the same machine.
   trusted_proxies:
     - 127.0.0.1
-    - 172.30.33.5
+    - 172.30.33.0/24
+    - 172.30.32.0/24
+
+zha:
+  zigpy_config:
+    ota:
+      ikea_provider: true # Auto update Trådfri devices
+      ledvance_provider: true # Auto update LEDVANCE/OSRAM
+
