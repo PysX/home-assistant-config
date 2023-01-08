@@ -32,5 +32,5 @@ TODO
 [actions]: https://github.com/PysX/home-assistant-config/actions
 [home-assistant]: https://home-assistant.io
 [license-shield]: https://img.shields.io/github/license/PysX/home-assistant-config.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2020.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2023.svg
 [last-commit-shield]: https://img.shields.io/github/last-commit/PysX/home-assistant-config.svg
